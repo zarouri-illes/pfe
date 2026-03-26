@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log('Seeding database...');
 
   // ─── 1. Admin Account ──────────────────────────────────
   const adminPasswordHash = await bcrypt.hash('admin123', 12);
@@ -24,7 +24,7 @@ async function main() {
       creditBalance: 9999,
     },
   });
-  console.log(`  ✅ Admin account: ${admin.email}`);
+  console.log(`  Admin account: ${admin.email}`);
 
   // ─── 2. Subjects ───────────────────────────────────────
   const maths = await prisma.subject.upsert({
@@ -38,7 +38,7 @@ async function main() {
     update: { name: 'Physique' },
     create: { name: 'Physique' },
   });
-  console.log(`  ✅ Subjects: ${maths.name}, ${physics.name}`);
+  console.log(`  Subjects: ${maths.name}, ${physics.name}`);
 
   // ─── 3. Chapters — Mathématiques ───────────────────────
   const mathChapters = [
@@ -70,7 +70,7 @@ async function main() {
       },
     });
   }
-  console.log(`  ✅ ${mathChapters.length} Maths chapters`);
+  console.log(`  ${mathChapters.length} Maths chapters`);
 
   // ─── 4. Chapters — Physique ────────────────────────────
   const physicsChapters = [
@@ -102,7 +102,7 @@ async function main() {
       },
     });
   }
-  console.log(`  ✅ ${physicsChapters.length} Physics chapters`);
+  console.log(`  ${physicsChapters.length} Physics chapters`);
 
   // ─── 5. Credit Packs ──────────────────────────────────
   const packs = [
@@ -119,14 +119,14 @@ async function main() {
       create: packs[i],
     });
   }
-  console.log(`  ✅ ${packs.length} Credit packs`);
+  console.log(`  ${packs.length} Credit packs`);
 
-  console.log('\n🎉 Seeding complete!');
+  console.log('\nSeeding complete!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Seed error:', e);
+    console.error('Seed error:', e);
     process.exit(1);
   })
   .finally(async () => {
