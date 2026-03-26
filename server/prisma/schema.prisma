@@ -1,0 +1,149 @@
+// prisma/schema.prisma
+// Single source of truth for the BacPrep Hub database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Users ────────────────────────────────────────────────
+model User {
+  id            Int           @id @default(autoincrement())
+  name          String        @db.VarChar(100)
+  email         String        @unique @db.VarChar(150)
+  passwordHash  String        @map("password_hash") @db.Text
+  role          String        @default("student") @db.VarChar(10)
+  creditBalance Int           @default(0) @map("credit_balance")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  attempts     Attempt[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+// ─── Subjects ─────────────────────────────────────────────
+model Subject {
+  id       Int       @id @default(autoincrement())
+  name     String    @db.VarChar(50)
+
+  chapters Chapter[]
+  exams    Exam[]
+
+  @@map("subjects")
+}
+
+// ─── Chapters ─────────────────────────────────────────────
+model Chapter {
+  id         Int    @id @default(autoincrement())
+  subjectId  Int    @map("subject_id")
+  name       String @db.VarChar(150)
+  orderIndex Int    @map("order_index")
+  creditCost Int    @default(5) @map("credit_cost")
+
+  subject   Subject    @relation(fields: [subjectId], references: [id])
+  questions Question[]
+  attempts  Attempt[]
+
+  @@map("chapters")
+}
+
+// ─── Exams ────────────────────────────────────────────────
+model Exam {
+  id         Int      @id @default(autoincrement())
+  subjectId  Int      @map("subject_id")
+  year       Int
+  stream     String   @db.VarChar(50)
+  type       String   @db.VarChar(20)
+  fileUrl    String   @map("file_url") @db.Text
+  publicId   String   @map("public_id") @db.Text
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  subject Subject @relation(fields: [subjectId], references: [id])
+
+  @@map("exams")
+}
+
+// ─── Questions ────────────────────────────────────────────
+model Question {
+  id            Int     @id @default(autoincrement())
+  chapterId     Int     @map("chapter_id")
+  type          String  @db.VarChar(20)
+  content       String  @db.Text
+  options       Json?
+  correctAnswer String  @map("correct_answer") @db.Text
+  tolerance     Float   @default(0)
+  points        Int     @default(1)
+
+  chapter Chapter  @relation(fields: [chapterId], references: [id])
+  answers Answer[]
+
+  @@map("questions")
+}
+
+// ─── Attempts ─────────────────────────────────────────────
+model Attempt {
+  id           Int       @id @default(autoincrement())
+  userId       Int       @map("user_id")
+  chapterId    Int       @map("chapter_id")
+  totalScore   Int       @default(0) @map("total_score")
+  maxScore     Int       @map("max_score")
+  creditsSpent Int       @map("credits_spent")
+  startedAt    DateTime  @default(now()) @map("started_at")
+  submittedAt  DateTime? @map("submitted_at")
+
+  user    User     @relation(fields: [userId], references: [id])
+  chapter Chapter  @relation(fields: [chapterId], references: [id])
+  answers Answer[]
+
+  @@map("attempts")
+}
+
+// ─── Answers ──────────────────────────────────────────────
+model Answer {
+  id            Int     @id @default(autoincrement())
+  attemptId     Int     @map("attempt_id")
+  questionId    Int     @map("question_id")
+  studentAnswer String? @map("student_answer") @db.Text
+  isCorrect     Boolean @map("is_correct")
+  score         Int
+
+  attempt  Attempt  @relation(fields: [attemptId], references: [id])
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@map("answers")
+}
+
+// ─── Credit Packs ─────────────────────────────────────────
+model CreditPack {
+  id       Int     @id @default(autoincrement())
+  name     String  @db.VarChar(100)
+  credits  Int
+  priceDa  Int     @map("price_da")
+  isActive Boolean @default(true) @map("is_active")
+
+  transactions Transaction[]
+
+  @@map("credit_packs")
+}
+
+// ─── Transactions ─────────────────────────────────────────
+model Transaction {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  packId       Int      @map("pack_id")
+  chargilyId   String   @unique @map("chargily_id") @db.VarChar(255)
+  amountDa     Int      @map("amount_da")
+  creditsAdded Int      @map("credits_added")
+  status       String   @default("pending") @db.VarChar(20)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User       @relation(fields: [userId], references: [id])
+  pack CreditPack @relation(fields: [packId], references: [id])
+
+  @@map("transactions")
+}
