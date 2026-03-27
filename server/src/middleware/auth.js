@@ -12,7 +12,7 @@ const verifyToken = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.split(' ')[1];
+    token = authHeader.split(' ');
   }
 
   if (!token) {
