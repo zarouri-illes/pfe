@@ -19,6 +19,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@chargily/chargily-pay": "^2.1.0",
     "@google/genai": "^1.47.0",
     "@prisma/client": "^5.22.0",
     "axios": "^1.7.9",
