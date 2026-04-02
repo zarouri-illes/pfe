@@ -5,11 +5,11 @@ const multer = require('multer');
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  // Enforce precise MIME type for the exams requirement
-  if (file.mimetype === 'application/pdf') {
+  // Enforce precise MIME type covering both PDFs (exams) and Images (questions)
+  if (file.mimetype === 'application/pdf' || file.mimetype.startsWith('image/')) {
     cb(null, true);
   } else {
-    cb(new Error('Only PDF files are allowed'), false);
+    cb(new Error('Only PDF and Image files are allowed'), false);
   }
 };
 

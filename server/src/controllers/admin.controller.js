@@ -58,13 +58,23 @@ const deleteExam = asyncHandler(async (req, res) => {
  */
 const createQuestion = asyncHandler(async (req, res) => {
   const { chapterId, type, content, options, correctAnswer, tolerance, points } = req.body;
+  
+  let imageUrl = null;
+
+  // If an image was provided, stream it to Cloudinary into a questions folder
+  if (req.file) {
+    const uploadResult = await uploadBufferToCloudinary(req.file.buffer, 'bacprep/questions');
+    imageUrl = uploadResult.secure_url;
+  }
 
   const question = await prisma.question.create({
     data: {
       chapterId: parseInt(chapterId, 10),
       type,
       content,
-      options: options || [],
+      imageUrl,
+      // Express might send arrays as strings if sent via multipart/form-data. Properly handle parsing.
+      options: options ? (typeof options === 'string' ? JSON.parse(options) : options) : [],
       correctAnswer,
       tolerance: tolerance ? parseFloat(tolerance) : null,
       points: parseInt(points, 10),

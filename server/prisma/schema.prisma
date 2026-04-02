@@ -74,6 +74,7 @@ model Question {
   chapterId     Int     @map("chapter_id")
   type          String  @db.VarChar(20)
   content       String  @db.Text
+  imageUrl      String? @map("image_url")
   options       Json?
   correctAnswer String  @map("correct_answer") @db.Text
   tolerance     Float   @default(0)

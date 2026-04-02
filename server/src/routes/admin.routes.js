@@ -35,6 +35,7 @@ router.delete('/exams/:id', deleteExam);
 // === QUESTIONS CRUD ===
 router.post(
   '/questions',
+  upload.single('image'),
   [
     body('chapterId').isInt(),
     body('type').isIn(['mcq', 'numerical']),
