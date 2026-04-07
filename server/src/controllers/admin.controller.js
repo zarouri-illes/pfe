@@ -20,6 +20,7 @@ const createExam = asyncHandler(async (req, res) => {
     data: {
       title,
       fileUrl: result.secure_url,
+      publicId: result.public_id,
       subjectId: parseInt(subjectId, 10),
       year: parseInt(year, 10),
       stream,
@@ -40,10 +41,9 @@ const deleteExam = asyncHandler(async (req, res) => {
   const exam = await prisma.exam.findUnique({ where: { id: parseInt(id, 10) } });
   if (!exam) return res.status(404).json({ error: 'Exam not found' });
 
-  // Delete from Cloudinary using the URL dynamically evaluated
-  const publicId = extractPublicId(exam.fileUrl);
-  if (publicId) {
-    await deleteFromCloudinary(publicId);
+  // Delete from Cloudinary using the stored public_id
+  if (exam.publicId) {
+    await deleteFromCloudinary(exam.publicId);
   }
 
   // Delete from DB strictly after deletion is confirmed from Cloud so we don't end up with ghost files
@@ -90,6 +90,18 @@ const createQuestion = asyncHandler(async (req, res) => {
  */
 const deleteQuestion = asyncHandler(async (req, res) => {
   const { id } = req.params;
+
+  const question = await prisma.question.findUnique({ where: { id: parseInt(id, 10) } });
+  if (!question) return res.status(404).json({ error: 'Question not found' });
+
+  // Clean up Cloudinary image if one exists
+  if (question.imageUrl) {
+    const publicId = extractPublicId(question.imageUrl);
+    if (publicId) {
+      await deleteFromCloudinary(publicId);
+    }
+  }
+
   await prisma.question.delete({ where: { id: parseInt(id, 10) } });
   res.status(200).json({ message: 'Question deleted successfully' });
 });
@@ -132,11 +144,52 @@ const updateCreditPack = asyncHandler(async (req, res) => {
   res.status(200).json({ data: pack });
 });
 
+/**
+ * @route   GET /api/admin/exams
+ * @desc    List all exams (for admin table view)
+ */
+const getAllExams = asyncHandler(async (req, res) => {
+  const exams = await prisma.exam.findMany({
+    include: { subject: { select: { name: true } } },
+    orderBy: { uploadedAt: 'desc' },
+  });
+  res.status(200).json({ data: exams });
+});
+
+/**
+ * @route   GET /api/admin/questions
+ * @desc    List all questions with optional chapterId filter
+ */
+const getAllQuestions = asyncHandler(async (req, res) => {
+  const { chapterId } = req.query;
+  const where = chapterId ? { chapterId: parseInt(chapterId, 10) } : {};
+
+  const questions = await prisma.question.findMany({
+    where,
+    include: { chapter: { select: { name: true, subject: { select: { name: true } } } } },
+    orderBy: { id: 'desc' },
+  });
+  res.status(200).json({ data: questions });
+});
+
+/**
+ * @route   DELETE /api/admin/credit-packs/:id
+ * @desc    Delete a credit pack
+ */
+const deleteCreditPack = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  await prisma.creditPack.delete({ where: { id: parseInt(id, 10) } });
+  res.status(200).json({ message: 'Credit pack deleted successfully' });
+});
+
 module.exports = {
+  getAllExams,
   createExam,
   deleteExam,
+  getAllQuestions,
   createQuestion,
   deleteQuestion,
   createCreditPack,
-  updateCreditPack
+  updateCreditPack,
+  deleteCreditPack
 };

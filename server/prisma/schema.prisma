@@ -56,11 +56,12 @@ model Chapter {
 model Exam {
   id         Int      @id @default(autoincrement())
   subjectId  Int      @map("subject_id")
+  title      String   @db.VarChar(255)
   year       Int
   stream     String   @db.VarChar(50)
   type       String   @db.VarChar(20)
   fileUrl    String   @map("file_url") @db.Text
-  publicId   String   @map("public_id") @db.Text
+  publicId   String?  @map("public_id") @db.Text
   uploadedAt DateTime @default(now()) @map("uploaded_at")
 
   subject Subject @relation(fields: [subjectId], references: [id])

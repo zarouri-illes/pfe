@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const morgan = require('morgan');
+const multer = require('multer');
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');
@@ -67,6 +68,19 @@ app.use((req, res, next) => {
 
 // 10. Global Error Handler
 app.use((err, req, res, next) => {
+  // Handle Multer file upload errors cleanly
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ error: 'File size exceeds the 20MB limit' });
+    }
+    return res.status(400).json({ error: `Upload error: ${err.message}` });
+  }
+
+  // Handle Multer file filter rejection
+  if (err.message === 'Only PDF and Image files are allowed') {
+    return res.status(400).json({ error: err.message });
+  }
+
   const status = err.status || 500;
   const message = err.message || 'Internal Server Error';
   

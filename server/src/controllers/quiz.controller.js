@@ -43,7 +43,7 @@ const startQuiz = asyncHandler(async (req, res) => {
   // Fetch questions in random order using raw SQL
   // Prisma generates table names automatically. We mapped them to lowercase plural form in schema.prisma.
   const questions = await prisma.$queryRaw`
-    SELECT id, "chapter_id" as "chapterId", type, content, options, points 
+    SELECT id, "chapter_id" as "chapterId", type, content, "image_url" as "imageUrl", options, points 
     FROM questions 
     WHERE chapter_id = ${chapterId}
     ORDER BY RANDOM()

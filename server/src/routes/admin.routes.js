@@ -1,9 +1,9 @@
 const express = require('express');
 const { body } = require('express-validator');
 const { 
-  createExam, deleteExam, 
-  createQuestion, deleteQuestion, 
-  createCreditPack, updateCreditPack 
+  getAllExams, createExam, deleteExam, 
+  getAllQuestions, createQuestion, deleteQuestion, 
+  createCreditPack, updateCreditPack, deleteCreditPack 
 } = require('../controllers/admin.controller');
 const { verifyToken } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/admin');
@@ -16,6 +16,8 @@ const router = express.Router();
 router.use(verifyToken, requireAdmin);
 
 // === EXAMS CRUD ===
+router.get('/exams', getAllExams);
+
 router.post(
   '/exams',
   upload.single('pdf'),
@@ -33,6 +35,8 @@ router.post(
 router.delete('/exams/:id', deleteExam);
 
 // === QUESTIONS CRUD ===
+router.get('/questions', getAllQuestions);
+
 router.post(
   '/questions',
   upload.single('image'),
@@ -62,5 +66,6 @@ router.post(
 );
 
 router.put('/credit-packs/:id', updateCreditPack);
+router.delete('/credit-packs/:id', deleteCreditPack);
 
 module.exports = router;

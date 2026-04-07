@@ -77,9 +77,10 @@ const handleWebhook = asyncHandler(async (req, res) => {
         prisma.transaction.create({
           data: {
             userId: parseInt(userId, 10),
-            creditPackId: parseInt(packId, 10),
+            packId: parseInt(packId, 10),
             chargilyId: chargilyId,
-            amountDa: parseFloat(checkout.amount),
+            amountDa: parseInt(checkout.amount, 10),
+            creditsAdded: parseInt(credits, 10),
             status: 'COMPLETED',
           },
         }),
