@@ -149,11 +149,24 @@ const updateCreditPack = asyncHandler(async (req, res) => {
  * @desc    List all exams (for admin table view)
  */
 const getAllExams = asyncHandler(async (req, res) => {
-  const exams = await prisma.exam.findMany({
-    include: { subject: { select: { name: true } } },
-    orderBy: { uploadedAt: 'desc' },
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 20;
+  const skip = (page - 1) * limit;
+
+  const [exams, total] = await Promise.all([
+    prisma.exam.findMany({
+      include: { subject: { select: { name: true } } },
+      orderBy: { uploadedAt: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.exam.count(),
+  ]);
+
+  res.status(200).json({
+    data: exams,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
   });
-  res.status(200).json({ data: exams });
 });
 
 /**
@@ -162,14 +175,26 @@ const getAllExams = asyncHandler(async (req, res) => {
  */
 const getAllQuestions = asyncHandler(async (req, res) => {
   const { chapterId } = req.query;
+  const page = parseInt(req.query.page, 10) || 1;
+  const limit = parseInt(req.query.limit, 10) || 20;
+  const skip = (page - 1) * limit;
   const where = chapterId ? { chapterId: parseInt(chapterId, 10) } : {};
 
-  const questions = await prisma.question.findMany({
-    where,
-    include: { chapter: { select: { name: true, subject: { select: { name: true } } } } },
-    orderBy: { id: 'desc' },
+  const [questions, total] = await Promise.all([
+    prisma.question.findMany({
+      where,
+      include: { chapter: { select: { name: true, subject: { select: { name: true } } } } },
+      orderBy: { id: 'desc' },
+      skip,
+      take: limit,
+    }),
+    prisma.question.count({ where }),
+  ]);
+
+  res.status(200).json({
+    data: questions,
+    pagination: { page, limit, total, totalPages: Math.ceil(total / limit) }
   });
-  res.status(200).json({ data: questions });
 });
 
 /**

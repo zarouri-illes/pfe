@@ -27,14 +27,23 @@ app.use(cors({
   credentials: true
 }));
 
-// 3. Rate Limiting
-const limiter = rateLimit({
+// 3. Rate Limiting (Global)
+const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window`
+  max: 100, // Limit each IP to 100 requests per window
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use(limiter);
+app.use(globalLimiter);
+
+// 3b. Stricter rate limiter for auth routes (brute-force protection)
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // Only 10 login/register attempts per 15 minutes per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts. Please try again later.' }
+});
 
 // 4. Request Logging
 if (process.env.NODE_ENV !== 'production') {
@@ -49,7 +58,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 7. Route Mounting
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/subjects', subjectsRoutes);
 app.use('/api/exams', examsRoutes);
 app.use('/api/quiz', quizRoutes);
