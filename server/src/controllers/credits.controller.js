@@ -47,16 +47,24 @@ const handleWebhook = asyncHandler(async (req, res) => {
   const signature = req.headers.signature;
   const rawBody = req.body;
 
+  console.log('Webhook triggered!');
+  console.log('Signature:', signature);
+
   // 1. Verify cryptographic signature
   if (!verifySignature(signature, rawBody)) {
+    console.error('Webhook Error: Invalid signature');
     return res.status(403).json({ error: 'Invalid signature' });
   }
+
+  console.log('Signature verified successfully');
 
   // 2. Parse the safely verified raw body
   let eventData;
   try {
     eventData = JSON.parse(rawBody.toString('utf-8'));
+    console.log('Event Data Type:', eventData.type);
   } catch (err) {
+    console.error('Webhook Error: Invalid JSON payload');
     return res.status(400).json({ error: 'Invalid JSON payload' });
   }
 

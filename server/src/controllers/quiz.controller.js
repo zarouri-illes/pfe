@@ -8,8 +8,6 @@ const { gradeAttempt } = require('../services/gradingService');
  * @access  Private
  */
 const startQuiz = asyncHandler(async (req, res) => {
-  // At this point, the route-level wrapper has verified the token, 
-  // looked up the chapter, applied requireCredits, and saved req.chapter.
   const chapterId = req.chapter.id;
   const creditsSpent = req.creditsSpent;
 
@@ -40,8 +38,6 @@ const startQuiz = asyncHandler(async (req, res) => {
     },
   });
 
-  // Fetch questions in random order using raw SQL
-  // Prisma generates table names automatically. We mapped them to lowercase plural form in schema.prisma.
   const questions = await prisma.$queryRaw`
     SELECT id, "chapter_id" as "chapterId", type, content, "image_url" as "imageUrl", options, points 
     FROM questions 
@@ -66,7 +62,6 @@ const startQuiz = asyncHandler(async (req, res) => {
 const submitQuiz = asyncHandler(async (req, res) => {
   const { attemptId, answers } = req.body;
 
-  // 1. Verify attempt exists and belongs to the requesting user
   const attempt = await prisma.attempt.findUnique({
     where: { id: attemptId },
   });
@@ -79,23 +74,18 @@ const submitQuiz = asyncHandler(async (req, res) => {
     return res.status(403).json({ error: 'You do not own this attempt' });
   }
 
-  // 2. Check that it hasn't been submitted already
   if (attempt.submittedAt !== null) {
     return res.status(400).json({ error: 'This quiz has already been submitted' });
   }
 
-  // 3. Fetch all questions for this chapter including correct answers
   const questions = await prisma.question.findMany({
     where: { chapterId: attempt.chapterId },
   });
 
-  // 4. Run grading service
   const gradedResults = gradeAttempt(questions, answers);
-
-  // Calculate total score
   const totalScore = gradedResults.reduce((sum, current) => sum + current.score, 0);
 
-  // 5. Save answers and update attempt in an atomic transaction
+  // Atomic transaction for saving results and tracking activity
   await prisma.$transaction([
     prisma.answer.createMany({
       data: gradedResults.map((result) => ({
@@ -113,19 +103,32 @@ const submitQuiz = asyncHandler(async (req, res) => {
         submittedAt: new Date(),
       },
     }),
+    prisma.activity.upsert({
+      where: {
+        userId_date: {
+          userId: req.user.id,
+          date: new Date().toISOString().split('T')[0] + 'T00:00:00.000Z',
+        },
+      },
+      update: { count: { increment: 1 } },
+      create: {
+        userId: req.user.id,
+        date: new Date().toISOString().split('T')[0] + 'T00:00:00.000Z',
+        count: 1,
+      },
+    }),
   ]);
 
-  // Create detailed breakdown for the student
   const breakdown = questions.map(q => {
     const result = gradedResults.find(r => r.questionId === q.id);
     return {
       questionId: q.id,
       content: q.content,
       type: q.type,
-      studentAnswer: result.studentAnswer,
+      studentAnswer: result?.studentAnswer || null,
       correctAnswer: q.correctAnswer,
-      isCorrect: result.isCorrect,
-      score: result.score,
+      isCorrect: result?.isCorrect || false,
+      score: result?.score || 0,
       maxPoints: q.points,
     };
   });

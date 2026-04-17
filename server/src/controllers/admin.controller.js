@@ -107,6 +107,17 @@ const deleteQuestion = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @route   GET /api/admin/credit-packs
+ * @desc    List all credit packs (active and inactive)
+ */
+const getAllCreditPacks = asyncHandler(async (req, res) => {
+  const packs = await prisma.creditPack.findMany({
+    orderBy: { id: 'asc' },
+  });
+  res.status(200).json({ data: packs });
+});
+
+/**
  * @route   POST /api/admin/credit-packs
  * @desc    Create a new credit pack
  */
@@ -214,6 +225,7 @@ module.exports = {
   getAllQuestions,
   createQuestion,
   deleteQuestion,
+  getAllCreditPacks,
   createCreditPack,
   updateCreditPack,
   deleteCreditPack

@@ -3,7 +3,7 @@ const { body } = require('express-validator');
 const { 
   getAllExams, createExam, deleteExam, 
   getAllQuestions, createQuestion, deleteQuestion, 
-  createCreditPack, updateCreditPack, deleteCreditPack 
+  getAllCreditPacks, createCreditPack, updateCreditPack, deleteCreditPack 
 } = require('../controllers/admin.controller');
 const { verifyToken } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/admin');
@@ -54,6 +54,8 @@ router.post(
 router.delete('/questions/:id', deleteQuestion);
 
 // === CREDIT PACKS CRUD ===
+router.get('/credit-packs', getAllCreditPacks);
+
 router.post(
   '/credit-packs',
   [

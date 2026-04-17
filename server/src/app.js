@@ -15,6 +15,7 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const chatbotRoutes = require('./routes/chatbot.routes');
 const creditsRoutes = require('./routes/credits.routes');
 const adminRoutes = require('./routes/admin.routes');
+const goalsRoutes = require('./routes/goals.routes');
 
 const app = express();
 
@@ -36,15 +37,6 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-// 3b. Stricter rate limiter for auth routes (brute-force protection)
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10, // Only 10 login/register attempts per 15 minutes per IP
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Too many authentication attempts. Please try again later.' }
-});
-
 // 4. Request Logging
 if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
@@ -58,7 +50,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // 7. Route Mounting
-app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/subjects', subjectsRoutes);
 app.use('/api/exams', examsRoutes);
 app.use('/api/quiz', quizRoutes);
@@ -66,6 +58,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/credits', creditsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/goals', goalsRoutes);
 
 // 8. Health Check
 app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));

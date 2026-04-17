@@ -74,13 +74,61 @@ const getDashboardData = asyncHandler(async (req, res) => {
     .sort((a, b) => a.averagePercentage - b.averagePercentage)
     .slice(0, 3);
 
+  // 6. Subject Progression (Grouped by subject)
+  const subjectStatsRows = await prisma.$queryRaw`
+    SELECT 
+      s.id as "subjectId",
+      s.name as "subjectName",
+      COALESCE(AVG(CAST(a.total_score AS FLOAT) / NULLIF(a.max_score, 0)) * 100, 0) as "averagePercentage"
+    FROM attempts a
+    JOIN chapters c ON a.chapter_id = c.id
+    JOIN subjects s ON c.subject_id = s.id
+    WHERE a.user_id = ${userId} AND a.submitted_at IS NOT NULL
+    GROUP BY s.id, s.name
+  `;
+
+  const subjectStats = subjectStatsRows.map(row => ({
+    subjectId: row.subjectId,
+    subjectName: row.subjectName,
+    averagePercentage: Math.round(Number(row.averagePercentage))
+  }));
+
+  // 7. Activity Heatmap (Last 1 year)
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+  const activities = await prisma.activity.findMany({
+    where: {
+      userId,
+      date: { gte: oneYearAgo }
+    },
+    select: {
+      date: true,
+      count: true
+    }
+  });
+
+  // 8. Goals Overview
+  const goalsCount = await prisma.goal.count({ where: { userId } });
+  const completedGoalsCount = await prisma.goal.count({ where: { userId, isCompleted: true } });
+
   res.status(200).json({
     data: {
-      creditBalance,
+      user: {
+        name: req.user.name,
+        email: req.user.email,
+        creditBalance
+      },
       daysUntilBac,
       recentAttempts,
       chapterStats,
-      weakestChapters
+      weakestChapters,
+      subjectStats,
+      heatmap: activities,
+      goals: {
+        total: goalsCount,
+        completed: completedGoalsCount
+      }
     }
   });
 });
