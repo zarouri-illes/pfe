@@ -26,6 +26,30 @@ const getAllSubjects = asyncHandler(async (req, res) => {
     },
   });
 
+  // If student is logged in, attach their progress per chapter
+  if (req.user) {
+    const statsRows = await prisma.$queryRaw`
+      SELECT 
+        a.chapter_id as "chapterId",
+        COALESCE(AVG(CAST(a.total_score AS FLOAT) / NULLIF(a.max_score, 0)) * 100, 0) as "averagePercentage"
+      FROM attempts a
+      WHERE a.user_id = ${req.user.id} AND a.submitted_at IS NOT NULL
+      GROUP BY a.chapter_id
+    `;
+
+    const progressMap = {};
+    statsRows.forEach(row => {
+      progressMap[row.chapterId] = Math.round(Number(row.averagePercentage));
+    });
+
+    // Merge progress into subjects structure
+    subjects.forEach(subject => {
+      subject.chapters.forEach(chapter => {
+        chapter.progress = progressMap[chapter.id] || 0;
+      });
+    });
+  }
+
   res.status(200).json({ data: subjects });
 });
 

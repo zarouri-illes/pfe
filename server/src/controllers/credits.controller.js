@@ -104,4 +104,23 @@ const handleWebhook = asyncHandler(async (req, res) => {
   res.status(200).send('Webhook received');
 });
 
-module.exports = { getAvailablePacks, createCheckout, handleWebhook };
+/**
+ * @route   GET /api/credits/history
+ * @desc    Get current user's transaction history
+ * @access  Private
+ */
+const getTransactionHistory = asyncHandler(async (req, res) => {
+  const transactions = await prisma.transaction.findMany({
+    where: { userId: req.user.id },
+    include: {
+      pack: {
+        select: { name: true }
+      }
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+  res.status(200).json({ data: transactions });
+});
+
+module.exports = { getAvailablePacks, createCheckout, handleWebhook, getTransactionHistory };

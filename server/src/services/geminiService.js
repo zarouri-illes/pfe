@@ -26,4 +26,32 @@ const getChatbotResponse = async (message) => {
   return response.text;
 };
 
-module.exports = { getChatbotResponse };
+/**
+ * Generates brief, personalized study recommendations based on weakest chapters.
+ */
+const getStudyRecommendations = async (weakestChapters) => {
+  if (!weakestChapters || weakestChapters.length === 0) {
+    return "Great job! You don't have any specific weak spots right now. Keep practicing all subjects to maintain your level.";
+  }
+
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const chapterList = weakestChapters.map(c => `${c.chapterName} (${c.averagePercentage}% average)`).join(', ');
+  
+  const prompt = `
+    Student performance data: Their weakest chapters are: ${chapterList}.
+    Action: Provide a 2-3 sentence encouraging study recommendation in French or Arabic (detect based on inputs).
+    Focus: Tell them where to focus first and give one specific study tip (e.g. review theory, do more MCQs, etc.).
+  `;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-1.5-flash',
+    contents: prompt,
+    config: {
+      systemInstruction: 'You are a study motivator for Algerian Baccalaureate students. Be concise, professional, and encouraging.'
+    }
+  });
+
+  return response.text;
+};
+
+module.exports = { getChatbotResponse, getStudyRecommendations };

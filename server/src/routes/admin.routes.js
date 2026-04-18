@@ -1,6 +1,7 @@
 const express = require('express');
 const { body } = require('express-validator');
 const { 
+  getAdminStats,
   getAllExams, createExam, deleteExam, 
   getAllQuestions, createQuestion, deleteQuestion, 
   getAllCreditPacks, createCreditPack, updateCreditPack, deleteCreditPack 
@@ -14,6 +15,9 @@ const router = express.Router();
 
 // ALL admin routes are strictly protected by BOTH token verification and the admin role check
 router.use(verifyToken, requireAdmin);
+
+// === DASHBOARD STATS ===
+router.get('/stats', getAdminStats);
 
 // === EXAMS CRUD ===
 router.get('/exams', getAllExams);

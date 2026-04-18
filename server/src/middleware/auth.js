@@ -47,4 +47,32 @@ const verifyToken = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { verifyToken };
+/**
+ * Optional Authentication Middleware
+ * Attempts to validate JWT but continues if missing or fail (without req.user).
+ */
+const optionalVerifyToken = asyncHandler(async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: { id: true, name: true, email: true, role: true, creditBalance: true },
+    });
+
+    if (user) {
+      req.user = user;
+    }
+    next();
+  } catch (error) {
+    // Silently ignore auth failures in optional mode
+    next();
+  }
+});
+
+module.exports = { verifyToken, optionalVerifyToken };

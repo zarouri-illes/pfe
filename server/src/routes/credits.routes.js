@@ -1,12 +1,13 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { getAvailablePacks, createCheckout, handleWebhook } = require('../controllers/credits.controller');
+const { getAvailablePacks, createCheckout, handleWebhook, getTransactionHistory } = require('../controllers/credits.controller');
 const { verifyToken } = require('../middleware/auth');
 const { validate } = require('../middleware/validate');
 
 const router = express.Router();
 
 router.get('/packs', verifyToken, getAvailablePacks);
+router.get('/history', verifyToken, getTransactionHistory);
 
 router.post(
   '/checkout',

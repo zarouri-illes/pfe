@@ -36,7 +36,7 @@ const verifySignature = (signature, rawBody) => {
   if (!signature || !rawBody) return false;
   
   const computedSignature = crypto
-    .createHmac('sha256', process.env.CHARGILY_SECRET_KEY)
+    .createHmac('sha256', process.env.CHARGILY_WEBHOOK_SECRET || process.env.CHARGILY_SECRET_KEY)
     .update(rawBody)
     .digest('hex');
     

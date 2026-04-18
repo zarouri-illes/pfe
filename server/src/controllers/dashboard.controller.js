@@ -1,5 +1,6 @@
 const prisma = require('../lib/prisma');
 const asyncHandler = require('../utils/asyncHandler');
+const { getStudyRecommendations } = require('../services/geminiService');
 
 /**
  * @route   GET /api/dashboard
@@ -112,6 +113,17 @@ const getDashboardData = asyncHandler(async (req, res) => {
   const goalsCount = await prisma.goal.count({ where: { userId } });
   const completedGoalsCount = await prisma.goal.count({ where: { userId, isCompleted: true } });
 
+  // 9. AI Recommendations
+  let recommendations = "Start practicing to get personalized AI recommendations!";
+  if (chapterStats.length > 0) {
+    try {
+      recommendations = await getStudyRecommendations(weakestChapters);
+    } catch (error) {
+      console.error('Failed to fetch AI recommendations:', error);
+      recommendations = "Focus on your weakest chapters to improve your scores.";
+    }
+  }
+
   res.status(200).json({
     data: {
       user: {
@@ -128,7 +140,8 @@ const getDashboardData = asyncHandler(async (req, res) => {
       goals: {
         total: goalsCount,
         completed: completedGoalsCount
-      }
+      },
+      recommendations
     }
   });
 });

@@ -105,11 +105,33 @@ async function main() {
   console.log(`  ${physicsChapters.length} Physics chapters`);
 
   // ─── 5. Credit Packs ──────────────────────────────────
+  // Deactivate all existing packs first to ensure only the 3 new tiers are active
+  await prisma.creditPack.updateMany({
+    data: { isActive: false },
+  });
+
   const packs = [
-    { name: 'Pack Débutant',  credits: 50,  priceDa: 300,  isActive: true },
-    { name: 'Pack Standard',  credits: 120, priceDa: 600,  isActive: true },
-    { name: 'Pack Premium',   credits: 300, priceDa: 1200, isActive: true },
-    { name: 'Pack Révision',  credits: 600, priceDa: 2000, isActive: true },
+    { 
+      name: 'Standard', 
+      credits: 100, 
+      priceDa: 500, 
+      features: ['Full Access to Exams PDF', 'Advanced Stats Dashboard (Limited)', 'Standard Chatbot Assistant'],
+      isActive: true 
+    },
+    { 
+      name: 'Passioned', 
+      credits: 300, 
+      priceDa: 1200, 
+      features: ['All Standard perks', 'Priority AI Chatbot Support', 'Personalized Study Goals'],
+      isActive: true 
+    },
+    { 
+      name: 'Premium', 
+      credits: 800, 
+      priceDa: 2500, 
+      features: ['All Passioned perks', 'Unlimited Chapter Quizzes', 'Early Access to Corrections', 'Batch PDF Downloads'],
+      isActive: true 
+    },
   ];
 
   for (let i = 0; i < packs.length; i++) {

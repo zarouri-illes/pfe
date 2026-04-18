@@ -102,6 +102,14 @@ const deleteQuestion = asyncHandler(async (req, res) => {
     }
   }
 
+  // 0. Check if any Answer records reference this question to avoid corrupted history
+  const answerCount = await prisma.answer.count({ where: { questionId: parseInt(id, 10) } });
+  if (answerCount > 0) {
+    return res.status(409).json({ 
+      error: 'Cannot delete question because it has existing student answers. Deactivating it is recommended instead (if implemented).' 
+    });
+  }
+
   await prisma.question.delete({ where: { id: parseInt(id, 10) } });
   res.status(200).json({ message: 'Question deleted successfully' });
 });
@@ -185,11 +193,17 @@ const getAllExams = asyncHandler(async (req, res) => {
  * @desc    List all questions with optional chapterId filter
  */
 const getAllQuestions = asyncHandler(async (req, res) => {
-  const { chapterId } = req.query;
+  const { chapterId, subjectId, type } = req.query;
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 20;
   const skip = (page - 1) * limit;
-  const where = chapterId ? { chapterId: parseInt(chapterId, 10) } : {};
+
+  const where = {};
+  if (chapterId) where.chapterId = parseInt(chapterId, 10);
+  if (type) where.type = type;
+  if (subjectId) {
+    where.chapter = { subjectId: parseInt(subjectId, 10) };
+  }
 
   const [questions, total] = await Promise.all([
     prisma.question.findMany({
@@ -218,7 +232,55 @@ const deleteCreditPack = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Credit pack deleted successfully' });
 });
 
+/**
+ * @route   GET /api/admin/stats
+ * @desc    Get top-level platform statistics for the admin dashboard
+ */
+const getAdminStats = asyncHandler(async (req, res) => {
+  const [studentCount, questionCount, examCount, revenueData] = await Promise.all([
+    prisma.user.count({ where: { role: 'student' } }),
+    prisma.question.count(),
+    prisma.exam.count(),
+    prisma.transaction.aggregate({
+      where: { status: 'COMPLETED' },
+      _sum: { amountDa: true },
+    }),
+  ]);
+
+  // Find most attempted chapter
+  const mostAttempted = await prisma.attempt.groupBy({
+    by: ['chapterId'],
+    _count: { _all: true },
+    orderBy: { _count: { chapterId: 'desc' } },
+    take: 1,
+  });
+
+  let topChapter = null;
+  if (mostAttempted.length > 0) {
+    topChapter = await prisma.chapter.findUnique({
+      where: { id: mostAttempted[0].chapterId },
+      include: { subject: { select: { name: true } } },
+    });
+    topChapter = {
+      name: topChapter.name,
+      subjectName: topChapter.subject.name,
+      attemptCount: mostAttempted[0]._count._all,
+    };
+  }
+
+  res.status(200).json({
+    data: {
+      totalStudents: studentCount,
+      totalQuestions: questionCount,
+      totalExams: examCount,
+      totalRevenue: revenueData._sum.amountDa || 0,
+      mostAttemptedChapter: topChapter,
+    },
+  });
+});
+
 module.exports = {
+  getAdminStats,
   getAllExams,
   createExam,
   deleteExam,

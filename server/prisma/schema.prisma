@@ -124,11 +124,12 @@ model Answer {
 
 // ─── Credit Packs ─────────────────────────────────────────
 model CreditPack {
-  id       Int     @id @default(autoincrement())
-  name     String  @db.VarChar(100)
+  id       Int      @id @default(autoincrement())
+  name     String   @db.VarChar(100)
   credits  Int
-  priceDa  Int     @map("price_da")
-  isActive Boolean @default(true) @map("is_active")
+  priceDa  Int      @map("price_da")
+  features String[] @default([])
+  isActive Boolean  @default(true) @map("is_active")
 
   transactions Transaction[]
 

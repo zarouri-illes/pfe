@@ -52,6 +52,8 @@ export default function Landing() {
       ease: "back.out(1.5)"
     });
 
+
+
     let panels = gsap.utils.toArray(".panel");
     if (panels.length === 0) return;
 
@@ -76,10 +78,6 @@ export default function Landing() {
       {/* 1. HERO SECTION */}
       <section className="panel w-full min-h-screen flex flex-col justify-center bg-white relative px-6 lg:pt-24 lg:pb-24 max-w-7xl mx-auto items-center lg:flex-row gap-12 z-0">
         
-        {/* Background elements */}
-        <div className="absolute top-20 right-[35%] w-64 h-64 bg-blue-50 rounded-full blur-[100px] opacity-40 pointer-events-none -z-10" />
-        <div className="absolute bottom-40 left-10 w-48 h-48 bg-emerald-50 rounded-full blur-[80px] opacity-30 pointer-events-none -z-10" />
-
         {/* Left: Content */}
         <div className="flex-1 text-center lg:text-left z-10">
           <motion.div 
@@ -138,7 +136,6 @@ export default function Landing() {
               src="/hero.png" 
               alt="Student" 
               className="w-full h-full object-contain grayscale-[0.2] hover:grayscale-0 transition-all duration-700"
-              style={{ maskImage: 'linear-gradient(to bottom, black 85%, transparent)' }}
             />
           </motion.div>
 
@@ -158,7 +155,7 @@ export default function Landing() {
 
       {/* 2. SUBJECTS GRID */}
       <section className="panel w-full min-h-screen flex flex-col justify-center px-6 py-10 bg-slate-50">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-[1400px] mx-auto w-full">
           <div className="text-center mb-16">
             <h2 className="text-[#10b981] font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Bibliothèque Bac</h2>
             <h3 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">Quelle matière voulez-vous maîtriser ?</h3>
@@ -217,9 +214,7 @@ export default function Landing() {
                className="relative z-10 p-3 bg-slate-50 rounded-2xl shadow-xl overflow-hidden border border-slate-100"
              >
                 <img src="/ai.gif" alt="IA Mentor" className="rounded-xl w-full grayscale-[0.3]" />
-                <div className="absolute inset-0 bg-[#1e3a8a]/10 mix-blend-multiply" />
              </motion.div>
-             <div className="absolute -top-10 -right-10 w-48 h-48 bg-emerald-50 blur-[100px] rounded-full pointer-events-none" />
           </div>
 
           <div className="flex-1 order-1 lg:order-2">
