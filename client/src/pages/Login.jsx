@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Mail, Lock } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -8,6 +9,7 @@ import api from '../api/client';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -29,11 +31,15 @@ export default function Login() {
         })
       });
       
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('user', JSON.stringify(res.user));
+      login(res.data.token, res.data.user);
       
-      console.log('Login success:', res);
-      navigate('/dashboard'); // Go to dashboard/landing
+      console.log('Login success:', res.data);
+      
+      if (res.data.user.role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       setError(err.message || 'Identifiants invalides.');
     } finally {

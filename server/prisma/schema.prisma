@@ -62,6 +62,7 @@ model Exam {
   year       Int
   stream     String   @db.VarChar(50)
   type       String   @db.VarChar(20)
+  semester   Int?
   fileUrl    String   @map("file_url") @db.Text
   publicId   String?  @map("public_id") @db.Text
   uploadedAt DateTime @default(now()) @map("uploaded_at")

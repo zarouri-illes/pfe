@@ -143,7 +143,86 @@ async function main() {
   }
   console.log(`  ${packs.length} Credit packs`);
 
-  console.log('\nSeeding complete!');
+  // ─── 6. Dummy Students ──────────────────────────────────
+  const studentPasswordHash = await bcrypt.hash('student123', 12);
+  const students = [];
+  for (let i = 1; i <= 5; i++) {
+    const s = await prisma.user.upsert({
+      where: { email: `student${i}@example.dz` },
+      update: {},
+      create: {
+        name: `Étudiant ${i}`,
+        email: `student${i}@example.dz`,
+        passwordHash: studentPasswordHash,
+        role: 'student',
+        creditBalance: 100,
+      },
+    });
+    students.push(s);
+  }
+  console.log(`  ${students.length} Student accounts created`);
+
+  // ─── 7. Dummy Questions ──────────────────────────────────
+  const chapters = await prisma.chapter.findMany({ take: 5 });
+  for (const chapter of chapters) {
+    await prisma.question.upsert({
+      where: { id: chapter.id * 100 }, // Safe dummy ID
+      update: {},
+      create: {
+        id: chapter.id * 100,
+        chapterId: chapter.id,
+        type: 'MCQ',
+        content: `Question de test pour le chapitre ${chapter.name}`,
+        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+        correctAnswer: 'Option A',
+        points: 5,
+      }
+    });
+  }
+  console.log('  Questions created for first 5 chapters');
+
+  // ─── 8. Historical Transactions (Last 30 Days) ──────────
+  console.log('  Seeding historical transactions...');
+  const packList = await prisma.creditPack.findMany({ where: { isActive: true } });
+  for (let i = 0; i < 20; i++) {
+    const randomPack = packList[Math.floor(Math.random() * packList.length)];
+    const randomDate = new Date();
+    randomDate.setDate(randomDate.getDate() - Math.floor(Math.random() * 30));
+    
+    await prisma.transaction.create({
+      data: {
+        userId: students[Math.floor(Math.random() * students.length)].id,
+        packId: randomPack.id,
+        creditsAdded: randomPack.credits,
+        amountDa: randomPack.priceDa,
+        status: 'COMPLETED',
+        chargilyId: `test_tx_${i}_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+        createdAt: randomDate
+      }
+    });
+  }
+
+  // ─── 9. Historical Attempts (Last 7 Days) ───────────────
+  console.log('  Seeding historical attempts...');
+  for (let i = 0; i < 40; i++) {
+    const randomChapter = chapters[Math.floor(Math.random() * chapters.length)];
+    const randomDate = new Date();
+    randomDate.setDate(randomDate.getDate() - Math.floor(Math.random() * 7));
+
+    await prisma.attempt.create({
+      data: {
+        userId: students[Math.floor(Math.random() * students.length)].id,
+        chapterId: randomChapter.id,
+        totalScore: Math.floor(Math.random() * 100),
+        maxScore: 100,
+        creditsSpent: 5,
+        startedAt: randomDate,
+        submittedAt: randomDate
+      }
+    });
+  }
+
+  console.log('\nSeeding complete with historical data!');
 }
 
 main()

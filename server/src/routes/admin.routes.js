@@ -31,6 +31,7 @@ router.post(
     body('year').isInt(),
     body('stream').isString().notEmpty(),
     body('type').isString().notEmpty(),
+    body('semester').optional().isInt({ min: 1, max: 3 }),
     validate
   ],
   createExam

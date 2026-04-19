@@ -7,7 +7,7 @@ const { uploadBufferToCloudinary, deleteFromCloudinary, extractPublicId } = requ
  * @desc    Upload an exam PDF directly to Cloudinary and create the SQL record
  */
 const createExam = asyncHandler(async (req, res) => {
-  const { title, subjectId, year, stream, type } = req.body;
+  const { title, subjectId, year, stream, type, semester } = req.body;
   
   if (!req.file) {
     return res.status(400).json({ error: 'Please upload a PDF file' });
@@ -24,7 +24,8 @@ const createExam = asyncHandler(async (req, res) => {
       subjectId: parseInt(subjectId, 10),
       year: parseInt(year, 10),
       stream,
-      type
+      type,
+      semester: semester ? parseInt(semester, 10) : null
     }
   });
 
@@ -237,7 +238,21 @@ const deleteCreditPack = asyncHandler(async (req, res) => {
  * @desc    Get top-level platform statistics for the admin dashboard
  */
 const getAdminStats = asyncHandler(async (req, res) => {
-  const [studentCount, questionCount, examCount, revenueData] = await Promise.all([
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const [
+    studentCount, 
+    questionCount, 
+    examCount, 
+    revenueData,
+    revenueHistory,
+    activityHistory,
+    subjectsBreakdown
+  ] = await Promise.all([
     prisma.user.count({ where: { role: 'student' } }),
     prisma.question.count(),
     prisma.exam.count(),
@@ -245,6 +260,37 @@ const getAdminStats = asyncHandler(async (req, res) => {
       where: { status: 'COMPLETED' },
       _sum: { amountDa: true },
     }),
+    // Revenue history (last 30 days)
+    prisma.transaction.groupBy({
+      by: ['createdAt'],
+      where: { 
+        status: 'COMPLETED',
+        createdAt: { gte: thirtyDaysAgo }
+      },
+      _sum: { amountDa: true },
+      orderBy: { createdAt: 'asc' }
+    }),
+    // Activity history (last 7 days)
+    prisma.attempt.groupBy({
+      by: ['startedAt'],
+      where: { startedAt: { gte: sevenDaysAgo } },
+      _count: { _all: true },
+      orderBy: { startedAt: 'asc' }
+    }),
+    // Questions per subject
+    prisma.subject.findMany({
+      select: {
+        name: true,
+        _count: {
+          select: { chapters: true } // This counts chapters, we want questions
+        },
+        chapters: {
+          select: {
+            _count: { select: { questions: true } }
+          }
+        }
+      }
+    })
   ]);
 
   // Find most attempted chapter
@@ -268,6 +314,35 @@ const getAdminStats = asyncHandler(async (req, res) => {
     };
   }
 
+  // Format history data (Prisma groupBy on DateTime usually returns per-millisecond groups which is not ideal,
+  // in a real prod app we'd use raw SQL for date truncation, 
+  // but let's approximate by day in JS for safety or use a simplified grouping)
+  
+  const formatHistory = (data, dateKey, sumKey, countKey) => {
+    const map = {};
+    data.forEach(item => {
+      const date = new Date(item[dateKey]).toLocaleDateString('en-US');
+      if (sumKey) {
+        map[date] = (map[date] || 0) + (item._sum[sumKey] || 0);
+      } else {
+        map[date] = (map[date] || 0) + (item._count[countKey] || 0);
+      }
+    });
+    return Object.entries(map).map(([name, value]) => ({ 
+      name, 
+      [sumKey || 'count']: value 
+    }));
+  };
+
+  const formattedRevenue = formatHistory(revenueHistory, 'createdAt', 'amountDa');
+  const formattedActivity = formatHistory(activityHistory, 'startedAt', null, '_all');
+
+  // Format subjects breakdown
+  const subjectStats = subjectsBreakdown.map(s => ({
+    name: s.name,
+    questionCount: s.chapters.reduce((acc, c) => acc + c._count.questions, 0)
+  }));
+
   res.status(200).json({
     data: {
       totalStudents: studentCount,
@@ -275,6 +350,9 @@ const getAdminStats = asyncHandler(async (req, res) => {
       totalExams: examCount,
       totalRevenue: revenueData._sum.amountDa || 0,
       mostAttemptedChapter: topChapter,
+      revenueHistory: formattedRevenue,
+      activityHistory: formattedActivity,
+      subjectStats: subjectStats
     },
   });
 });

@@ -9,6 +9,8 @@ export function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const dashboardPath = user?.role === 'admin' ? '/admin/dashboard' : '/dashboard';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -59,8 +61,8 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
-              <Link to={user?.role === 'ADMIN' ? '/admin' : '/dashboard'}>
-                <Button variant="ghost" className="font-bold text-gray-700 hover:bg-slate-50 text-sm">
+              <Link to={dashboardPath}>
+                <Button variant="ghost" className="font-bold text-slate-700 hover:text-[#1e3a8a] hover:bg-blue-50/50 text-sm rounded-full px-5 transition-all">
                   Mon Espace
                 </Button>
               </Link>
