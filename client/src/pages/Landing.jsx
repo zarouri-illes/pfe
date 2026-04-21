@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import api from '../api/client';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
@@ -31,6 +32,19 @@ import { FloatingIcon } from '../components/landing/FloatingIcon';
 
 export default function Landing() {
   const container = useRef();
+  const [packs, setPacks] = useState([]);
+
+  useEffect(() => {
+    const fetchPacks = async () => {
+      try {
+        const res = await api('/api/credits/packs');
+        setPacks((res.data || res).slice(0, 3));
+      } catch (error) {
+        console.error('Error fetching dynamic packs:', error);
+      }
+    };
+    fetchPacks();
+  }, []);
 
   useGSAP(() => {
     let smoother = ScrollSmoother.create({
@@ -253,25 +267,46 @@ export default function Landing() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <PricingCard 
-              title="Starter"
-              price="500"
-              credits={100}
-              features={["Accès Complet aux Sujets", "IA Mentor (Limité)", "Quiz par Chapitres", "Statistiques de Progression"]}
-            />
-            <PricingCard 
-              title="Candidat Passionné"
-              price="1200"
-              credits={350}
-              recommended={true}
-              features={["Support IA Prioritaire", "Quiz Illimités", "Téléchargement PDF", "Rapports de Performance", "Accès Mentor 24/7"]}
-            />
-            <PricingCard 
-              title="Study Master"
-              price="2500"
-              credits={1000}
-              features={["Toutes les fonctionnalités", "Accès à Vie", "Sujets Bac Blanc Exclusifs", "Groupes d'Études", "Rentabilité Maximale"]}
-            />
+            {packs.length > 0 ? (
+              packs.map((pack, i) => (
+                <PricingCard 
+                  key={pack.id}
+                  title={pack.name}
+                  price={pack.priceDa}
+                  credits={pack.credits}
+                  recommended={i === 1}
+                  features={pack.features?.length > 0 ? pack.features : [
+                    "Accès Complet aux Sujets",
+                    "Aide Mentor IA",
+                    "Quiz par Chapitres",
+                    "Suivi de Progression"
+                  ]}
+                />
+              ))
+            ) : (
+              // Fallback cards
+              <>
+                <PricingCard 
+                  title="Starter"
+                  price="500"
+                  credits={100}
+                  features={["Accès Complet aux Sujets", "IA Mentor (Limité)", "Quiz par Chapitres", "Statistiques de Progression"]}
+                />
+                <PricingCard 
+                  title="Candidat Passionné"
+                  price="1200"
+                  credits={350}
+                  recommended={true}
+                  features={["Support IA Prioritaire", "Quiz Illimités", "Téléchargement PDF", "Rapports de Performance", "Accès Mentor 24/7"]}
+                />
+                <PricingCard 
+                  title="Study Master"
+                  price="2500"
+                  credits={1000}
+                  features={["Toutes les fonctionnalités", "Accès à Vie", "Sujets Bac Blanc Exclusifs", "Groupes d'Études", "Rentabilité Maximale"]}
+                />
+              </>
+            )}
           </div>
         </div>
       </section>

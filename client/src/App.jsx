@@ -7,6 +7,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './components/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminExams from './pages/admin/AdminExams';
+import AdminQuestions from './pages/admin/AdminQuestions';
+import AdminPacks from './pages/admin/AdminPacks';
+import AdminTransactions from './pages/admin/AdminTransactions';
+import AdminStudents from './pages/admin/AdminStudents';
+import Credits from './pages/Credits';
 
 function NotFound() {
   return (
@@ -37,6 +42,7 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/credits" element={<Credits />} />
             <Route path="*" element={<NotFound />} />
           </Route>
           
@@ -46,8 +52,10 @@ function App() {
               <Route index element={<Navigate to="/admin/dashboard" replace />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="exams" element={<AdminExams />} />
-              <Route path="questions" element={<div className="p-8"><h1 className="text-2xl font-bold">Gestion des Questions (À venir)</h1></div>} />
-              <Route path="packs" element={<div className="p-8"><h1 className="text-2xl font-bold">Gestion des Packs (À venir)</h1></div>} />
+              <Route path="questions" element={<AdminQuestions />} />
+              <Route path="packs" element={<AdminPacks />} />
+              <Route path="transactions" element={<AdminTransactions />} />
+              <Route path="students" element={<AdminStudents />} />
             </Route>
           </Route>
         </Routes>

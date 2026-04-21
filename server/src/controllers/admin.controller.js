@@ -70,19 +70,61 @@ const createQuestion = asyncHandler(async (req, res) => {
 
   const question = await prisma.question.create({
     data: {
-      chapterId: parseInt(chapterId, 10),
+      chapter: { connect: { id: parseInt(chapterId, 10) } },
       type,
       content,
       imageUrl,
       // Express might send arrays as strings if sent via multipart/form-data. Properly handle parsing.
       options: options ? (typeof options === 'string' ? JSON.parse(options) : options) : [],
       correctAnswer,
-      tolerance: tolerance ? parseFloat(tolerance) : null,
-      points: parseInt(points, 10),
+      tolerance: tolerance ? parseFloat(tolerance) : 0,
+      points: points ? parseInt(points, 10) : 10,
     }
   });
 
   res.status(201).json({ data: question });
+});
+
+/**
+ * @route   PUT /api/admin/questions/:id
+ * @desc    Update an existing question
+ */
+const updateQuestion = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { chapterId, type, content, options, correctAnswer, tolerance, points } = req.body;
+  
+  const existingQuestion = await prisma.question.findUnique({ where: { id: parseInt(id, 10) } });
+  if (!existingQuestion) return res.status(404).json({ error: 'Question non trouvée' });
+
+  let imageUrl = undefined; // undefined means "don't update" in Prisma if not provided
+
+  if (req.file) {
+    // If a new image is uploaded, send to Cloudinary
+    const uploadResult = await uploadBufferToCloudinary(req.file.buffer, 'bacprep/questions');
+    imageUrl = uploadResult.secure_url;
+
+    // Optional: Clean up old image from Cloudinary
+    if (existingQuestion.imageUrl) {
+      const oldPublicId = extractPublicId(existingQuestion.imageUrl);
+      if (oldPublicId) await deleteFromCloudinary(oldPublicId);
+    }
+  }
+
+  const question = await prisma.question.update({
+    where: { id: parseInt(id, 10) },
+    data: {
+      chapter: chapterId ? { connect: { id: parseInt(chapterId, 10) } } : undefined,
+      type,
+      content,
+      imageUrl,
+      options: options ? (typeof options === 'string' ? JSON.parse(options) : options) : undefined,
+      correctAnswer,
+      tolerance: tolerance !== undefined ? parseFloat(tolerance) : undefined,
+      points: points ? parseInt(points, 10) : undefined,
+    }
+  });
+
+  res.status(200).json({ data: question });
 });
 
 /**
@@ -113,6 +155,57 @@ const deleteQuestion = asyncHandler(async (req, res) => {
 
   await prisma.question.delete({ where: { id: parseInt(id, 10) } });
   res.status(200).json({ message: 'Question deleted successfully' });
+});
+
+/**
+ * @route   GET /api/admin/transactions
+ * @desc    Get all platform transactions for history log
+ */
+const getAllTransactions = asyncHandler(async (req, res) => {
+  const transactions = await prisma.transaction.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true
+        }
+      },
+      pack: {
+        select: {
+          name: true,
+          credits: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  res.status(200).json({ data: transactions });
+});
+
+/**
+ * @route   GET /api/admin/students
+ * @desc    Get all registered students for management
+ */
+const getStudents = asyncHandler(async (req, res) => {
+  const students = await prisma.user.findMany({
+    where: { role: 'student' },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      creditBalance: true,
+      createdAt: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  res.status(200).json({ data: students });
 });
 
 /**
@@ -229,8 +322,18 @@ const getAllQuestions = asyncHandler(async (req, res) => {
  */
 const deleteCreditPack = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  await prisma.creditPack.delete({ where: { id: parseInt(id, 10) } });
-  res.status(200).json({ message: 'Credit pack deleted successfully' });
+  try {
+    await prisma.creditPack.delete({ where: { id: parseInt(id, 10) } });
+    res.status(200).json({ message: 'Credit pack deleted successfully' });
+  } catch (error) {
+    // P2003 is Prisma's Foreign Key constraint failed error
+    if (error.code === 'P2003') {
+      return res.status(409).json({ 
+        error: 'Impossible de supprimer ce pack car il possède un historique de transactions. Désactivez-le plutôt.' 
+      });
+    }
+    throw error;
+  }
 });
 
 /**
@@ -357,6 +460,57 @@ const getAdminStats = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * Securely stream a PDF file from Cloudinary (or local) to the frontend.
+ * This prevents 401/CORS issues when the browser tries to fetch the file directly
+ * and allows for future permission checks.
+ */
+const getExamFile = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const exam = await prisma.exam.findUnique({ where: { id: parseInt(id) } });
+
+  if (!exam) {
+    res.status(404);
+    throw new Error('Examen non trouvé');
+  }
+
+  try {
+    const cloudinary = require('cloudinary').v2;
+    // Extract version from the original URL (e.g., v171... -> 171...)
+    const versionMatch = exam.fileUrl.match(/\/upload\/v(\d+)\//);
+    const version = versionMatch ? versionMatch[1] : undefined;
+
+    // Generate a signed URL for secure access
+    const signedUrl = cloudinary.url(`${exam.publicId}.pdf`, {
+      sign_url: true,
+      secure: true,
+      resource_type: 'image',
+      version: version
+    });
+
+    console.log('DEBUG: Streaming from Signed URL:', signedUrl);
+    const response = await fetch(signedUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
+    
+    if (!response.ok) {
+      console.error(`DEBUG: Cloudinary Fetch Failed | Status: ${response.status} | Text: ${response.statusText}`);
+      throw new Error(`Erreur Cloudinary: ${response.status} ${response.statusText}`);
+    }
+
+    const buffer = await response.arrayBuffer();
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${exam.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf"`);
+    res.send(Buffer.from(buffer));
+  } catch (error) {
+    console.error('Streaming error:', error);
+    res.status(500).json({ message: 'Erreur lors du chargement du PDF' });
+  }
+});
+
 module.exports = {
   getAdminStats,
   getAllExams,
@@ -364,9 +518,13 @@ module.exports = {
   deleteExam,
   getAllQuestions,
   createQuestion,
+  updateQuestion,
   deleteQuestion,
   getAllCreditPacks,
   createCreditPack,
   updateCreditPack,
-  deleteCreditPack
+  deleteCreditPack,
+  getAllTransactions,
+  getStudents,
+  getExamFile
 };

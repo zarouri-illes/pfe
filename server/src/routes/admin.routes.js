@@ -3,8 +3,11 @@ const { body } = require('express-validator');
 const { 
   getAdminStats,
   getAllExams, createExam, deleteExam, 
-  getAllQuestions, createQuestion, deleteQuestion, 
-  getAllCreditPacks, createCreditPack, updateCreditPack, deleteCreditPack 
+  getAllQuestions, createQuestion, updateQuestion, deleteQuestion, 
+  getAllCreditPacks, createCreditPack, updateCreditPack, deleteCreditPack,
+  getAllTransactions,
+  getStudents,
+  getExamFile
 } = require('../controllers/admin.controller');
 const { verifyToken } = require('../middleware/auth');
 const { requireAdmin } = require('../middleware/admin');
@@ -21,6 +24,7 @@ router.get('/stats', getAdminStats);
 
 // === EXAMS CRUD ===
 router.get('/exams', getAllExams);
+router.get('/exams/:id/view', getExamFile);
 
 router.post(
   '/exams',
@@ -56,6 +60,7 @@ router.post(
   createQuestion
 );
 
+router.put('/questions/:id', upload.single('image'), updateQuestion);
 router.delete('/questions/:id', deleteQuestion);
 
 // === CREDIT PACKS CRUD ===
@@ -74,5 +79,11 @@ router.post(
 
 router.put('/credit-packs/:id', updateCreditPack);
 router.delete('/credit-packs/:id', deleteCreditPack);
+
+// === TRANSACTIONS ===
+router.get('/transactions', getAllTransactions);
+
+// === STUDENTS ===
+router.get('/students', getStudents);
 
 module.exports = router;

@@ -7,7 +7,9 @@ import {
   HelpCircle, 
   CreditCard, 
   LogOut,
-  ChevronRight
+  ChevronRight,
+  History,
+  Users
 } from 'lucide-react';
 
 const AdminLayout = () => {
@@ -19,6 +21,8 @@ const AdminLayout = () => {
     { name: 'Examens', path: '/admin/exams', icon: FileText },
     { name: 'Questions', path: '/admin/questions', icon: HelpCircle },
     { name: 'Packs Credits', path: '/admin/packs', icon: CreditCard },
+    { name: 'Transactions', path: '/admin/transactions', icon: History },
+    { name: 'Étudiants', path: '/admin/students', icon: Users },
   ];
 
   const handleLogout = () => {

@@ -61,6 +61,12 @@ export function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           {isAuthenticated ? (
             <div className="flex items-center gap-3">
+              {user?.role === 'student' && (
+                <div className="flex items-center gap-1.5 px-4 py-2 bg-amber-50 rounded-full border border-amber-100">
+                  <Coins size={14} className="text-amber-500" />
+                  <span className="text-xs font-black text-amber-600">{creditBalance}</span>
+                </div>
+              )}
               <Link to={dashboardPath}>
                 <Button variant="ghost" className="font-bold text-slate-700 hover:text-[#1e3a8a] hover:bg-blue-50/50 text-sm rounded-full px-5 transition-all">
                   Mon Espace

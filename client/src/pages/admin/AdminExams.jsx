@@ -18,6 +18,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
+import PDFViewer from '../../components/admin/PDFViewer';
 
 const AdminExams = () => {
   const [exams, setExams] = useState([]);
@@ -28,7 +29,11 @@ const AdminExams = () => {
   const [search, setSearch] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [examToDelete, setExamToDelete] = useState(null);
   const [selectedPreviewUrl, setSelectedPreviewUrl] = useState(null);
+  const [selectedExamId, setSelectedExamId] = useState(null);
+  const [selectedExamTitle, setSelectedExamTitle] = useState('');
   const [filterYear, setFilterYear] = useState('');
   const [filterSemester, setFilterSemester] = useState('');
   const [filterStream, setFilterStream] = useState('');
@@ -122,15 +127,21 @@ const AdminExams = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Voulez-vous vraiment supprimer cet examen ?')) return;
+  const handleDeleteClick = (exam) => {
+    setExamToDelete(exam);
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!examToDelete) return;
     try {
-      await api(`/api/admin/exams/${id}`, { method: 'DELETE' });
-      // Filter out locally for instant UI update
-      setExams(prev => prev.filter(ex => ex.id !== id));
-      // fetchExams(); // Re-sync if needed
+      await api(`/api/admin/exams/${examToDelete.id}`, { method: 'DELETE' });
+      setExams(prev => prev.filter(ex => ex.id !== examToDelete.id));
+      setShowDeleteModal(false);
+      setExamToDelete(null);
     } catch (error) {
       console.error('Delete failed:', error);
+      alert('Erreur lors de la suppression');
     }
   };
 
@@ -299,7 +310,8 @@ const AdminExams = () => {
                   <tr 
                     key={exam.id} 
                     onClick={() => {
-                      setSelectedPreviewUrl(exam.fileUrl);
+                      setSelectedExamId(exam.id);
+                      setSelectedExamTitle(exam.title);
                       setShowPreviewModal(true);
                     }}
                     className="hover:bg-slate-50/80 transition-all cursor-pointer group border-l-2 border-l-transparent hover:border-l-blue-500"
@@ -346,7 +358,8 @@ const AdminExams = () => {
                       <div className="flex justify-end gap-2">
                         <button 
                           onClick={() => {
-                            setSelectedPreviewUrl(exam.fileUrl);
+                            setSelectedExamId(exam.id);
+                            setSelectedExamTitle(exam.title);
                             setShowPreviewModal(true);
                           }}
                           className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
@@ -364,7 +377,7 @@ const AdminExams = () => {
                           <FileDown size={18} />
                         </a>
                         <button 
-                          onClick={() => handleDelete(exam.id)}
+                          onClick={() => handleDeleteClick(exam)}
                           className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
                           title="Supprimer"
                         >
@@ -545,70 +558,58 @@ const AdminExams = () => {
         )}
       </AnimatePresence>
 
-      {/* Preview Modal */}
+      {/* High-Fidelity PDF Preview Modal */}
       <AnimatePresence>
-        {showPreviewModal && (
+        {showPreviewModal && selectedExamId && (
+          <PDFViewer 
+            examId={selectedExamId} 
+            title={selectedExamTitle}
+            onClose={() => {
+              setShowPreviewModal(false);
+              setSelectedExamId(null);
+            }} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowPreviewModal(false)}
-              className="absolute inset-0 bg-slate-950/60 backdrop-blur-md"
+              onClick={() => setShowDeleteModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              className="relative w-full max-w-5xl h-[90vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden p-8 text-center"
             >
-              <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white text-slate-900">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-red-100 text-red-600 flex items-center justify-center rounded-lg">
-                    <FileText size={18} />
-                  </div>
-                  <h3 className="text-sm font-black uppercase tracking-wider">Aperçu du Sujet</h3>
-                </div>
-                <div className="flex items-center gap-4">
-                  <a 
-                    href={selectedPreviewUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-xs font-black transition-all hover:bg-blue-100"
-                  >
-                    <FileDown size={14} />
-                    Plein écran
-                  </a>
-                  <button 
-                    onClick={() => setShowPreviewModal(false)}
-                    className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
+              <div className="w-20 h-20 bg-red-50 text-red-500 flex items-center justify-center rounded-2xl mx-auto mb-6">
+                <Trash2 size={40} />
               </div>
-              
-                <div className="flex-1 bg-slate-100 flex flex-col items-center justify-center relative group p-4 overflow-hidden">
-                  <object 
-                    data={selectedPreviewUrl} 
-                    type="application/pdf"
-                    className="w-full h-full rounded-xl shadow-2xl"
-                  >
-                    <div className="text-center p-10 bg-white rounded-2xl shadow-xl border border-slate-200 flex flex-col items-center gap-4">
-                       <AlertCircle className="text-amber-500" size={48} />
-                       <h4 className="text-lg font-black text-slate-900">Aperçu non disponible</h4>
-                       <p className="text-sm text-slate-500 font-bold max-w-xs">Votre navigateur ne peut pas afficher ce PDF directement.</p>
-                       <a 
-                         href={selectedPreviewUrl} 
-                         target="_blank" 
-                         rel="noopener noreferrer"
-                         className="px-6 py-3 bg-blue-600 text-white rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-200"
-                       >
-                         Ouvrir dans un nouvel onglet
-                       </a>
-                    </div>
-                  </object>
-                </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-2">Supprimer l'examen ?</h3>
+              <p className="text-slate-500 font-medium mb-8">
+                Êtes-vous sûr de vouloir supprimer <span className="font-bold text-slate-900">"{examToDelete?.title}"</span> ? Cette action est irréversible.
+              </p>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all font-sans"
+                >
+                  Annuler
+                </button>
+                <button 
+                  onClick={handleConfirmDelete}
+                  className="flex-1 py-4 bg-red-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:bg-red-600 transition-all flex items-center justify-center gap-2 font-sans"
+                >
+                  Supprimer
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
