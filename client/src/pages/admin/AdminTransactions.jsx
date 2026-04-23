@@ -190,7 +190,7 @@ const AdminTransactions = () => {
       </div>
 
       {/* Transactions Table */}
-      <Card className="border-slate-200/60 shadow-sm rounded-2xl overflow-hidden bg-white">
+      <Card className="border-slate-200/60 shadow-sm rounded-lg overflow-hidden bg-white">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>

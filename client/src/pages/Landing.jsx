@@ -1,14 +1,7 @@
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../api/client';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ScrollSmoother } from 'gsap/ScrollSmoother';
-import { SplitText } from 'gsap/SplitText';
-import { useGSAP } from '@gsap/react';
-
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother, SplitText);
 
 import { Button } from '../components/ui/button';
 import { 
@@ -28,10 +21,7 @@ import { PricingCard } from '../components/landing/PricingCard';
 import { FAQItem } from '../components/landing/FAQItem';
 import { FloatingIcon } from '../components/landing/FloatingIcon';
 
-
-
 export default function Landing() {
-  const container = useRef();
   const [packs, setPacks] = useState([]);
 
   useEffect(() => {
@@ -46,51 +36,11 @@ export default function Landing() {
     fetchPacks();
   }, []);
 
-  useGSAP(() => {
-    let smoother = ScrollSmoother.create({
-      wrapper: '#smooth-wrapper',
-      content: '#smooth-content',
-      smooth: 1.5,
-      effects: true
-    });
-
-    // Hero SplitText Animation
-    gsap.set("#hero-title", { visibility: "visible" });
-    const split = new SplitText("#hero-title", { type: "words,chars" });
-    gsap.from(split.chars, {
-      opacity: 0,
-      y: 40,
-      rotationX: -90,
-      stagger: 0.02,
-      duration: 0.6,
-      ease: "back.out(1.5)"
-    });
-
-
-
-    let panels = gsap.utils.toArray(".panel");
-    if (panels.length === 0) return;
-
-    panels.forEach((panel, i) => {
-      // Pin every panel except the last one so the page comes to a natural end
-      if (i === panels.length - 1) return;
-      
-      ScrollTrigger.create({
-        trigger: panel,
-        start: "top top", 
-        pin: true, 
-        pinSpacing: false,
-        anticipatePin: 1
-      });
-    });
-  }, { scope: container });
-
   return (
-    <div id="smooth-wrapper" ref={container} className="min-h-screen bg-white font-inter">
-      <div id="smooth-content">
+    <div className="bg-white font-inter">
       
       {/* 1. HERO SECTION */}
-      <section className="panel w-full min-h-screen flex flex-col justify-center bg-white relative px-6 lg:pt-24 lg:pb-24 max-w-7xl mx-auto items-center lg:flex-row gap-12 z-0">
+      <section className="sticky top-0 w-full min-h-screen flex flex-col justify-center bg-white px-6 pt-32 lg:pt-24 lg:pb-24 max-w-7xl mx-auto items-center lg:flex-row gap-12 z-[1] overflow-hidden">
         
         {/* Left: Content */}
         <div className="flex-1 text-center lg:text-left z-10">
@@ -102,15 +52,16 @@ export default function Landing() {
             <Stars size={14} className="fill-emerald-600" /> Plateforme Spécialisée Bac 2026
           </motion.div>
 
-          <h1 
-            id="hero-title"
-            className="text-4xl lg:text-[4rem] font-black text-[#111827] leading-[1.1] mb-6 tracking-tight invisible"
-            style={{ perspective: "400px" }}
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-4xl lg:text-[4rem] font-black text-[#111827] leading-[1.1] mb-6 tracking-tight"
           >
             Réussir Votre Bac <br/> 
             <span className="text-[#111827]">Algérien Plus Tactiquement</span> <br/>
             <span className="text-[#10b981] drop-shadow-sm">Plus Facilement</span>
-          </h1>
+          </motion.h1>
 
           <motion.p 
             initial={{ opacity: 0 }}
@@ -168,7 +119,7 @@ export default function Landing() {
       </section>
 
       {/* 2. SUBJECTS GRID */}
-      <section className="panel w-full min-h-screen flex flex-col justify-center px-6 py-10 bg-slate-50">
+      <section className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-10 bg-slate-50 z-[2]">
         <div className="max-w-[1400px] mx-auto w-full">
           <div className="text-center mb-16">
             <h2 className="text-[#10b981] font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Bibliothèque Bac</h2>
@@ -219,13 +170,13 @@ export default function Landing() {
       </section>
 
       {/* 3. AI SECTION */}
-      <section id="about" className="panel w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-blue-50 relative overflow-hidden">
+      <section id="about" className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-blue-50 relative overflow-hidden z-[3]">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
           <div className="flex-1 relative order-2 lg:order-1">
              <motion.div 
                initial={{ rotate: -2 }}
                whileInView={{ rotate: 0 }}
-               className="relative z-10 p-3 bg-slate-50 rounded-2xl shadow-xl overflow-hidden border border-slate-100"
+               className="relative z-10 p-3 bg-slate-50 rounded-lg shadow-xl overflow-hidden border border-slate-100"
              >
                 <img src="/ai.gif" alt="IA Mentor" className="rounded-xl w-full grayscale-[0.3]" />
              </motion.div>
@@ -259,7 +210,7 @@ export default function Landing() {
       </section>
 
       {/* 4. PRICING */}
-      <section className="panel w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-emerald-50">
+      <section className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-emerald-50 z-[4]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-[#10b981] font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Votre Investissement</h2>
@@ -311,14 +262,14 @@ export default function Landing() {
         </div>
       </section>
       {/* 5. FAQ */}
-      <section id="faq" className="panel w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-zinc-50">
+      <section id="faq" className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-zinc-50 z-[5]">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-[#10b981] font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Assistance</h2>
             <h3 className="text-3xl font-black text-slate-900 tracking-tight">Questions Fréquentes</h3>
           </div>
 
-          <div className="border border-slate-100 rounded-2xl px-6 lg:px-10 lg:py-6 bg-white shadow-xl shadow-slate-100/50">
+          <div className="border border-slate-100 rounded-lg px-6 lg:px-10 lg:py-6 bg-white shadow-xl shadow-slate-100/50">
             <FAQItem 
               question="C'est quoi les 'Crédits d'Étude' ?"
               answer="Les crédits sont notre monnaie interne. Vous les utilisez pour débloquer des sessions de quiz ou demander des explications à l'IA. Vous ne payez que ce que vous consommez."
@@ -340,7 +291,7 @@ export default function Landing() {
       </section>
 
       {/* 6. FOOTER */}
-      <footer className="panel w-full min-h-screen flex flex-col justify-center bg-[#111827] text-white pt-20 pb-12 px-6">
+      <footer className="relative w-full min-h-[60vh] flex flex-col justify-center bg-[#111827] text-white pt-20 pb-12 px-6 z-[10]">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             <div>
@@ -388,6 +339,5 @@ export default function Landing() {
       </footer>
       
       </div>
-    </div>
   );
 }

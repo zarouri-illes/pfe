@@ -70,7 +70,7 @@ export default function Register() {
         animate={{ opacity: 1, y: 0 }}
         className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
       >
-        <div className="bg-white py-8 px-6 shadow-xl border border-slate-100 rounded-2xl sm:px-10">
+        <div className="bg-white py-8 px-6 shadow-xl border border-slate-100 rounded-lg sm:px-10">
           <form className="space-y-5" onSubmit={handleSubmit}>
             {error && (
               <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm font-bold border border-red-100 text-center">

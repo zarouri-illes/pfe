@@ -363,7 +363,7 @@ const AdminQuestions = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+              className="relative w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
             >
               <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-3">
@@ -461,7 +461,7 @@ const AdminQuestions = () => {
                 <div className="space-y-1.5">
                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Illustration (Optionnel)</label>
                    <div className="flex items-center gap-4">
-                      <div className="relative group w-32 h-32 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl flex items-center justify-center overflow-hidden hover:border-indigo-400 transition-all cursor-pointer">
+                      <div className="relative group w-32 h-32 bg-slate-50 border-2 border-dashed border-slate-200 rounded-lg flex items-center justify-center overflow-hidden hover:border-indigo-400 transition-all cursor-pointer">
                         {formData.imagePreview ? (
                           <img src={formData.imagePreview} className="w-full h-full object-cover" alt="Preview" />
                         ) : (
@@ -541,14 +541,14 @@ const AdminQuestions = () => {
                 <button 
                   type="button" 
                   onClick={() => setShowModal(false)}
-                  className="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
+                  className="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
                 >
                   Annuler
                 </button>
                 <button 
                   onClick={handleSubmit}
                   disabled={processing}
-                  className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 py-4 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
                 >
                   {processing ? <Loader2 size={16} className="animate-spin" /> : 'Enregistrer Question'}
                 </button>
@@ -573,7 +573,7 @@ const AdminQuestions = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+              className="relative w-full max-w-xl bg-white rounded-xl shadow-2xl overflow-hidden"
             >
               <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-3">
@@ -590,7 +590,7 @@ const AdminQuestions = () => {
               <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
                 <div className="space-y-4">
                   <p className="text-sm font-black text-slate-400 uppercase tracking-widest leading-none">Énoncé</p>
-                  <p className="text-lg font-bold text-slate-900 bg-slate-50 p-6 rounded-2xl border border-slate-100 italic">
+                  <p className="text-lg font-bold text-slate-900 bg-slate-50 p-6 rounded-lg border border-slate-100 italic">
                     "{selectedQuestion.content}"
                   </p>
                 </div>
@@ -598,7 +598,7 @@ const AdminQuestions = () => {
                 {selectedQuestion.imageUrl && (
                   <div className="space-y-4">
                     <p className="text-sm font-black text-slate-400 uppercase tracking-widest leading-none">Illustration</p>
-                    <div className="rounded-2xl overflow-hidden border border-slate-200">
+                    <div className="rounded-lg overflow-hidden border border-slate-200">
                       <img src={selectedQuestion.imageUrl} alt="Question" className="w-full object-contain max-h-64 bg-white" />
                     </div>
                   </div>
@@ -659,7 +659,7 @@ const AdminQuestions = () => {
               <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
                  <button 
                    onClick={() => handleEdit(selectedQuestion)}
-                   className="flex-1 py-4 bg-indigo-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                   className="flex-1 py-4 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
                  >
                    <Edit3 size={16} />
                    Modifier la Question
@@ -685,9 +685,9 @@ const AdminQuestions = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden p-8 text-center"
+              className="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden p-8 text-center"
             >
-              <div className="w-20 h-20 bg-red-50 text-red-500 flex items-center justify-center rounded-2xl mx-auto mb-6">
+              <div className="w-20 h-20 bg-red-50 text-red-500 flex items-center justify-center rounded-lg mx-auto mb-6">
                 <Trash2 size={40} />
               </div>
               <h3 className="text-2xl font-black text-slate-900 mb-2">Confirmer Suppression</h3>
@@ -698,14 +698,14 @@ const AdminQuestions = () => {
                 <button 
                   onClick={() => setShowDeleteModal(false)}
                   disabled={processing}
-                  className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all disabled:opacity-50"
+                  className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all disabled:opacity-50"
                 >
                   Annuler
                 </button>
                 <button 
                   onClick={handleDeleteConfirm}
                   disabled={processing}
-                  className="flex-1 py-4 bg-red-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="flex-1 py-4 bg-red-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {processing ? <Loader2 size={16} className="animate-spin" /> : 'Supprimer'}
                 </button>

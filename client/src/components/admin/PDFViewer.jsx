@@ -64,7 +64,7 @@ const PDFViewer = ({ examId, onClose, title }) => {
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-6xl h-[90vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300">
+      <div className="relative w-full max-w-6xl h-[90vh] bg-white rounded-xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300">
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white z-10">
@@ -98,7 +98,7 @@ const PDFViewer = ({ examId, onClose, title }) => {
               <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] animate-pulse">Chargement du document...</p>
             </div>
           ) : error ? (
-            <div className="text-center p-10 bg-white rounded-2xl shadow-xl border border-slate-200 flex flex-col items-center gap-4 max-w-sm mx-auto">
+            <div className="text-center p-10 bg-white rounded-lg shadow-xl border border-slate-200 flex flex-col items-center gap-4 max-w-sm mx-auto">
                <AlertCircle className="text-red-500" size={48} />
                <h4 className="text-lg font-black text-slate-900">Erreur de chargement</h4>
                <p className="text-sm text-slate-500 font-bold">{error}</p>

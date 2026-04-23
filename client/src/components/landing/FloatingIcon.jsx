@@ -18,7 +18,7 @@ export const FloatingIcon = ({ icon: Icon, color, delay, x, y, size = 48 }) => (
     style={{ left: `${x}%`, top: `${y}%` }}
     className="absolute z-30"
   >
-    <div className={`p-3 rounded-2xl bg-white shadow-xl border border-slate-50 text-${color}`}>
+    <div className={`p-3 rounded-lg bg-white shadow-xl border border-slate-50 text-${color}`}>
       <Icon size={size / 2} fill={color === 'white' ? 'white' : 'transparent'} />
     </div>
   </motion.div>

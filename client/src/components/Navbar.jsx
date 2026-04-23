@@ -3,14 +3,16 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Coins, BookOpen, Brain, LayoutDashboard } from 'lucide-react';
 
 export function Navbar() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, creditBalance } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   const dashboardPath = user?.role === 'admin' ? '/admin/dashboard' : '/dashboard';
+
+  const navLinks = [];
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -37,6 +39,24 @@ export function Navbar() {
           <span className="text-xl font-extrabold text-[#111827] tracking-tight">BacPrep</span>
         </Link>
 
+
+        {/* Desktop Nav Links */}
+        {isAuthenticated && user?.role === 'student' && (
+          <div className="hidden lg:flex items-center gap-8 ml-10">
+            {navLinks.map((link) => (
+              <Link 
+                key={link.path} 
+                to={link.path}
+                className="text-sm font-bold text-slate-500 hover:text-[#1e3a8a] transition-colors flex items-center gap-2"
+              >
+                <link.icon size={16} />
+                {link.name}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <div className="flex-grow" />
 
         {/* Desktop Auth/Actions */}
         <div className="hidden md:flex items-center gap-3">

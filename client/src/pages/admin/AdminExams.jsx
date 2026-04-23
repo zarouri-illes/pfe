@@ -419,7 +419,7 @@ const AdminExams = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden"
+              className="relative w-full max-w-xl bg-white rounded-lg shadow-2xl overflow-hidden"
             >
               <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-3">
@@ -587,9 +587,9 @@ const AdminExams = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden p-8 text-center"
+              className="relative w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden p-8 text-center"
             >
-              <div className="w-20 h-20 bg-red-50 text-red-500 flex items-center justify-center rounded-2xl mx-auto mb-6">
+              <div className="w-20 h-20 bg-red-50 text-red-500 flex items-center justify-center rounded-lg mx-auto mb-6">
                 <Trash2 size={40} />
               </div>
               <h3 className="text-2xl font-black text-slate-900 mb-2">Supprimer l'examen ?</h3>
@@ -599,13 +599,13 @@ const AdminExams = () => {
               <div className="flex gap-4">
                 <button 
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all font-sans"
+                  className="flex-1 py-4 bg-slate-100 text-slate-600 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all font-sans"
                 >
                   Annuler
                 </button>
                 <button 
                   onClick={handleConfirmDelete}
-                  className="flex-1 py-4 bg-red-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:bg-red-600 transition-all flex items-center justify-center gap-2 font-sans"
+                  className="flex-1 py-4 bg-red-500 text-white rounded-lg text-[10px] font-black uppercase tracking-widest shadow-xl shadow-red-200 hover:bg-red-600 transition-all flex items-center justify-center gap-2 font-sans"
                 >
                   Supprimer
                 </button>

@@ -131,7 +131,7 @@ const AdminDashboard = () => {
             <button className="text-slate-400 hover:text-slate-600"><MoreVertical size={16} /></button>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="h-[320px] w-full">
+            <div className="h-[320px] w-full relative min-h-[320px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={stats?.revenueHistory?.length > 0 ? stats.revenueHistory : [{name: 'Empty', amountDa: 0}]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
@@ -141,7 +141,7 @@ const AdminDashboard = () => {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} dy={10} hide={stats?.revenueHistory?.length === 0} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} dy={10} hide={!stats?.revenueHistory || stats?.revenueHistory?.length === 0} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} />
                   <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }} />
                   <Area type="monotone" dataKey="amountDa" stroke="#2563eb" strokeWidth={2.5} fillOpacity={1} fill="url(#revenueGradient)" />
@@ -206,12 +206,12 @@ const AdminDashboard = () => {
             </div>
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
           </CardHeader>
-          <CardContent className="h-[250px]">
+          <CardContent className="h-[250px] relative min-h-[250px]">
              <ResponsiveContainer width="100%" height="100%">
                <BarChart data={stats?.activityHistory || []}>
                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontStyle: 'bold' }} hide={stats?.activityHistory?.length === 0} />
-                 <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '10px' }} />
+                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontStyle: 'bold' }} hide={!stats?.activityHistory || stats?.activityHistory?.length === 0} />
+                 <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '10px' }} cursor={{fill: '#f8fafc'}} />
                  <Bar dataKey="count" fill="#2563eb" radius={[4, 4, 0, 0]} barSize={24} />
                </BarChart>
              </ResponsiveContainer>

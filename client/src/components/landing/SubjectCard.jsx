@@ -4,7 +4,7 @@ import { Lock } from 'lucide-react';
 export const SubjectCard = ({ title, img, size, icon: Icon, color, comingSoon }) => (
   <motion.div 
     whileHover={comingSoon ? {} : { y: -8, scale: 1.01 }}
-    className={`relative rounded-2xl overflow-hidden group shadow-lg ${
+    className={`relative rounded-lg overflow-hidden group shadow-lg ${
       size === 'large' ? 'col-span-1 md:col-span-2 row-span-2' : 'col-span-1'
     } ${comingSoon ? 'cursor-not-allowed opacity-90' : 'cursor-pointer'}`}
   >

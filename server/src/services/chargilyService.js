@@ -10,20 +10,27 @@ const client = new ChargilyClient({
  * Creates a checkout session for a credit pack
  */
 const createCheckoutSession = async (user, pack) => {
-  const checkout = await client.createCheckout({
-    amount: pack.priceDa,
-    currency: 'dzd',
-    success_url: `${process.env.FRONTEND_URL}/dashboard?payment=success`,
-    failure_url: `${process.env.FRONTEND_URL}/dashboard?payment=failed`,
-    webhook_endpoint: `${process.env.BACKEND_URL}/api/credits/webhook`,
-    metadata: {
-      userId: user.id,
-      packId: pack.id,
-      credits: pack.credits
-    }
-  });
+  console.log('Creating checkout for user:', user.id, 'pack:', pack.id);
+  try {
+    const checkout = await client.createCheckout({
+      amount: pack.priceDa,
+      currency: 'dzd',
+      success_url: `${process.env.FRONTEND_URL}/dashboard?payment=success`,
+      failure_url: `${process.env.FRONTEND_URL}/dashboard?payment=failed`,
+      webhook_endpoint: `${process.env.BACKEND_URL}/api/credits/webhook`,
+      metadata: {
+        userId: String(user.id),
+        packId: String(pack.id),
+        credits: String(pack.credits)
+      }
+    });
 
-  return checkout.checkout_url;
+    console.log('Chargily Response:', JSON.stringify(checkout, null, 2));
+    return checkout.checkout_url;
+  } catch (error) {
+    console.error('Chargily SDK Error:', error);
+    throw error;
+  }
 };
 
 /**
@@ -33,21 +40,32 @@ const createCheckoutSession = async (user, pack) => {
  * @returns {boolean}
  */
 const verifySignature = (signature, rawBody) => {
-  if (!signature || !rawBody) return false;
+  if (!signature || !rawBody) {
+    console.warn('Missing signature or rawBody');
+    return false;
+  }
   
+  const secret = process.env.CHARGILY_WEBHOOK_SECRET || process.env.CHARGILY_SECRET_KEY;
+  
+  // Basic check: if secret looks like a URL, it's definitely wrong
+  if (secret.startsWith('http')) {
+    console.warn('CHARGILY_WEBHOOK_SECRET seems to be a URL instead of a secret key!');
+  }
+
   const computedSignature = crypto
-    .createHmac('sha256', process.env.CHARGILY_WEBHOOK_SECRET || process.env.CHARGILY_SECRET_KEY)
+    .createHmac('sha256', secret)
     .update(rawBody)
     .digest('hex');
     
-  // Using timingSafeEqual is a best practice to prevent timing attacks
+  console.log('Computed Signature:', computedSignature);
+  console.log('Received Signature:', signature);
+
   try {
     return crypto.timingSafeEqual(
       Buffer.from(computedSignature),
       Buffer.from(signature)
     );
   } catch (e) {
-    // Fallback if lengths differ or Buffer.from throws
     return computedSignature === signature;
   }
 };

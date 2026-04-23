@@ -4,7 +4,7 @@ import { Zap, CheckCircle } from 'lucide-react';
 export const PricingCard = ({ title, price, credits, features, recommended }) => (
   <motion.div 
     whileHover={{ y: -8 }}
-    className={`relative p-8 rounded-2xl bg-white border flex flex-col h-full ${
+    className={`relative p-8 rounded-lg bg-white border flex flex-col h-full ${
       recommended ? 'border-[#10b981] shadow-xl shadow-emerald-50 scale-105 z-10' : 'border-slate-100 shadow-sm'
     }`}
   >

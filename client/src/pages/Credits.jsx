@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import api from '../api/client';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Zap, 
   ShieldCheck, 
@@ -60,8 +60,14 @@ const Credits = () => {
         body: JSON.stringify({ packId })
       });
       
-      if (res.checkoutUrl) {
+      console.log('Checkout API Response:', res);
+      
+      if (res && res.checkoutUrl) {
+        console.log('Redirecting to:', res.checkoutUrl);
         window.location.href = res.checkoutUrl;
+      } else {
+        console.error('Invalid checkout response:', res);
+        alert('Erreur: URL de paiement introuvable');
       }
     } catch (error) {
       console.error('Checkout error:', error);
@@ -72,7 +78,7 @@ const Credits = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] pt-32 pb-20 px-6">
+    <div className="p-4 md:p-8 lg:p-10 pb-24">
       <div className="max-w-7xl mx-auto">
         
         {/* Header */}
@@ -97,10 +103,10 @@ const Credits = () => {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-md mx-auto mb-16 bg-white p-6 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-between"
+            className="max-w-md mx-auto mb-16 bg-white p-6 rounded-xl border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-between"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-amber-100 text-amber-600 flex items-center justify-center rounded-2xl shadow-sm">
+              <div className="w-12 h-12 bg-amber-100 text-amber-600 flex items-center justify-center rounded-lg shadow-sm">
                 <Coins size={24} />
               </div>
               <div>
@@ -110,7 +116,7 @@ const Credits = () => {
             </div>
             <button 
               onClick={() => setShowHistory(!showHistory)}
-              className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-2xl transition-all"
+              className="p-3 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
               title="Historique des transactions"
             >
               <History size={20} />
@@ -125,7 +131,7 @@ const Credits = () => {
                initial={{ height: 0, opacity: 0 }}
                animate={{ height: 'auto', opacity: 1 }}
                exit={{ height: 0, opacity: 0 }}
-               className="max-w-2xl mx-auto mb-12 overflow-hidden bg-slate-50 border border-slate-200 rounded-3xl"
+               className="max-w-2xl mx-auto mb-12 overflow-hidden bg-slate-50 border border-slate-200 rounded-xl"
              >
                 <div className="p-6">
                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-4">Dernières Transactions</h3>
@@ -155,7 +161,7 @@ const Credits = () => {
         {/* Packs Grid */}
         {loading ? (
           <div className="grid md:grid-cols-3 gap-8">
-            {[1,2,3].map(i => <div key={i} className="h-[400px] bg-white rounded-3xl animate-pulse shadow-sm"></div>)}
+            {[1,2,3].map(i => <div key={i} className="h-[400px] bg-white rounded-xl animate-pulse shadow-sm"></div>)}
           </div>
         ) : (
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -163,7 +169,7 @@ const Credits = () => {
               <motion.div
                 key={pack.id}
                 whileHover={{ y: -8 }}
-                className={`relative bg-white rounded-3xl p-8 border-2 shadow-sm transition-all flex flex-col ${
+                className={`relative bg-white rounded-xl p-8 border-2 shadow-sm transition-all flex flex-col ${
                   pack.credits > 500 ? 'border-indigo-100 ring-4 ring-indigo-50/50' : 'border-slate-100 h-full'
                 }`}
               >
@@ -181,7 +187,7 @@ const Credits = () => {
                   </div>
                 </div>
 
-                <div className="p-5 bg-slate-50 rounded-2xl mb-8 border border-slate-100/50">
+                <div className="p-5 bg-slate-50 rounded-lg mb-8 border border-slate-100/50">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-amber-100 text-amber-600 flex items-center justify-center rounded-xl shadow-sm">
                       <Coins size={20} />
@@ -211,7 +217,7 @@ const Credits = () => {
                 <button 
                   onClick={() => handleBuy(pack.id)}
                   disabled={processing === pack.id}
-                  className={`w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`w-full py-4 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
                     pack.credits > 500 
                     ? 'bg-indigo-600 text-white shadow-indigo-200 hover:bg-indigo-700' 
                     : 'bg-slate-900 text-white shadow-slate-200 hover:bg-slate-800'
