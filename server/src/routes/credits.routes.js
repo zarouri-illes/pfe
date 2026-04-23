@@ -6,7 +6,7 @@ const { validate } = require('../middleware/validate');
 
 const router = express.Router();
 
-router.get('/packs', verifyToken, getAvailablePacks);
+router.get('/packs', getAvailablePacks);
 router.get('/history', verifyToken, getTransactionHistory);
 
 router.post(

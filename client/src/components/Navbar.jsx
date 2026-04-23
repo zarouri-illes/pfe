@@ -18,13 +18,6 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: 'Accueil', path: '/' },
-    { name: 'Sujets', path: '/exams' },
-    { name: 'À Propos', path: '/#about' },
-    { name: 'Tarifs', path: '/credits' },
-    { name: 'FAQ', path: '/#faq' },
-  ];
 
   return (
     <motion.nav 
@@ -44,18 +37,6 @@ export function Navbar() {
           <span className="text-xl font-extrabold text-[#111827] tracking-tight">BacPrep</span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map(link => (
-            <Link 
-              key={link.name} 
-              to={link.path}
-              className="text-gray-500 font-semibold text-sm hover:text-[#1e3a8a] transition-colors"
-            >
-              {link.name}
-            </Link>
-          ))}
-        </div>
 
         {/* Desktop Auth/Actions */}
         <div className="hidden md:flex items-center gap-3">
@@ -115,11 +96,6 @@ export function Navbar() {
             className="md:hidden absolute top-full left-0 w-full bg-white border-b px-6 py-6 shadow-2xl overflow-hidden"
           >
             <div className="flex flex-col gap-4">
-              {navLinks.map(link => (
-                <Link key={link.name} to={link.path} onClick={() => setMobileMenuOpen(false)} className="text-slate-600 font-bold text-base">
-                  {link.name}
-                </Link>
-              ))}
               <div className="pt-4 flex flex-col gap-3">
                 {isAuthenticated ? (
                   <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>

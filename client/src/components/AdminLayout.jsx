@@ -9,12 +9,22 @@ import {
   LogOut,
   ChevronRight,
   History,
-  Users
+  Users,
+  Menu,
+  X
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLayout = () => {
   const { logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on navigation
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [navigate]);
 
   const navItems = [
     { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
@@ -31,10 +41,26 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8fafc]">
+    <div className="flex min-h-screen bg-[#f8fafc] overflow-x-hidden">
+      {/* Mobile Backdrop */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="w-68 bg-[#0f172a] text-slate-300 flex flex-col fixed inset-y-0 z-50 shadow-xl transition-all duration-300">
-        <div className="p-7 mb-4">
+      <aside className={`
+        fixed inset-y-0 left-0 z-[70] w-68 bg-[#0f172a] text-slate-300 flex flex-col shadow-xl transition-transform duration-300 lg:translate-x-0
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <div className="p-7 mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-900/20">
               BP
@@ -44,6 +70,9 @@ const AdminLayout = () => {
               <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-[0.2em] font-bold">Admin Portal</p>
             </div>
           </div>
+          <button onClick={() => setIsMobileMenuOpen(false)} className="lg:hidden p-2 text-slate-500 hover:text-white">
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
@@ -95,8 +124,24 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-68">
-        <div className="h-full bg-slate-50/30 p-8 lg:p-10 min-h-screen">
+      <main className="flex-1 w-full lg:ml-68 transition-all duration-300">
+        {/* Mobile Header Toggle */}
+        <div className="lg:hidden sticky top-0 z-[40] bg-white border-b border-slate-200 p-4 flex items-center justify-between">
+           <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-black text-sm">
+                BP
+              </div>
+              <span className="font-extrabold text-slate-900 tracking-tight">Admin Portal</span>
+           </div>
+           <button 
+             onClick={() => setIsMobileMenuOpen(true)}
+             className="p-2 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
+           >
+             <Menu size={20} />
+           </button>
+        </div>
+
+        <div className="h-full bg-slate-50/30 p-4 md:p-8 lg:p-10 min-h-screen">
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>

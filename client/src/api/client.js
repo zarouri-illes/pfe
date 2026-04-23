@@ -27,7 +27,8 @@ const api = async (path, options = {}) => {
   if (res.status === 401) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
+    // We NO LONGER force redirect here. ProtectedRoute.jsx handles this for restricted areas.
+    // This prevents loops where guest-accessible pages call protected endpoints.
     throw new Error('Session expired');
   }
 
