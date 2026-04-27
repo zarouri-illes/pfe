@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import Skeleton from '../components/ui/skeleton';
 
 const ExamLibrary = () => {
   const [exams, setExams] = useState([]);
@@ -95,53 +96,65 @@ const ExamLibrary = () => {
             {/* Subject Filter */}
             <div className="space-y-1.5">
                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Matière</label>
-               <select 
-                 className="w-full h-12 pl-4 pr-10 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[position:right_0.75rem_center] bg-no-repeat"
-                 value={filters.subjectId}
-                 onChange={(e) => setFilters({...filters, subjectId: e.target.value})}
-               >
-                  <option value="">Toutes</option>
-                  {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-               </select>
+               <div className="relative">
+                 <select 
+                   className="w-full h-12 pl-4 pr-10 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 appearance-none cursor-pointer"
+                   value={filters.subjectId}
+                   onChange={(e) => setFilters({...filters, subjectId: e.target.value})}
+                 >
+                    <option value="">Toutes</option>
+                    {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                 </select>
+                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+               </div>
             </div>
 
             {/* Stream Filter */}
             <div className="space-y-1.5">
                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Filière</label>
-               <select 
-                 className="w-full h-12 pl-4 pr-10 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[position:right_0.75rem_center] bg-no-repeat"
-                 value={filters.stream}
-                 onChange={(e) => setFilters({...filters, stream: e.target.value})}
-               >
-                  <option value="">Tous les flux</option>
-                  {streams.map(s => <option key={s} value={s}>{s}</option>)}
-               </select>
+               <div className="relative">
+                 <select 
+                   className="w-full h-12 pl-4 pr-10 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 appearance-none cursor-pointer"
+                   value={filters.stream}
+                   onChange={(e) => setFilters({...filters, stream: e.target.value})}
+                 >
+                    <option value="">Tous les flux</option>
+                    {streams.map(s => <option key={s} value={s}>{s}</option>)}
+                 </select>
+                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+               </div>
             </div>
 
             {/* Year Filter */}
             <div className="space-y-1.5">
                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Année</label>
-               <select 
-                 className="w-full h-12 pl-4 pr-10 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[position:right_0.75rem_center] bg-no-repeat"
-                 value={filters.year}
-                 onChange={(e) => setFilters({...filters, year: e.target.value})}
-               >
-                  <option value="">Toutes</option>
-                  {years.map(y => <option key={y} value={y}>{y}</option>)}
-               </select>
+               <div className="relative">
+                 <select 
+                   className="w-full h-12 pl-4 pr-10 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 appearance-none cursor-pointer"
+                   value={filters.year}
+                   onChange={(e) => setFilters({...filters, year: e.target.value})}
+                 >
+                    <option value="">Toutes</option>
+                    {years.map(y => <option key={y} value={y}>{y}</option>)}
+                 </select>
+                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+               </div>
             </div>
 
             {/* Type Filter */}
             <div className="space-y-1.5">
                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Type</label>
-               <select 
-                 className="w-full h-12 pl-4 pr-10 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20stroke%3D%22%236b7280%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%221.5%22%20d%3D%22m6%208%204%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem_1.25rem] bg-[position:right_0.75rem_center] bg-no-repeat"
-                 value={filters.type}
-                 onChange={(e) => setFilters({...filters, type: e.target.value})}
-               >
-                  <option value="">Tout</option>
-                  {types.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-               </select>
+               <div className="relative">
+                 <select 
+                   className="w-full h-12 pl-4 pr-10 bg-slate-50 border-none rounded-lg text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/20 appearance-none cursor-pointer"
+                   value={filters.type}
+                   onChange={(e) => setFilters({...filters, type: e.target.value})}
+                 >
+                    <option value="">Tout</option>
+                    {types.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                 </select>
+                 <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+               </div>
             </div>
 
             <div className="flex items-end">
@@ -165,16 +178,31 @@ const ExamLibrary = () => {
          {loading ? (
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} className="h-48 bg-slate-100 rounded-xl animate-pulse" />
+                <div key={i} className="flex flex-col gap-4">
+                  <Skeleton className="h-48 w-full rounded-xl" />
+                </div>
               ))}
            </div>
          ) : exams.length > 0 ? (
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+           <motion.div 
+             initial="hidden"
+             animate="visible"
+             variants={{
+               hidden: { opacity: 0 },
+               visible: { 
+                 opacity: 1,
+                 transition: { staggerChildren: 0.05 }
+               }
+             }}
+             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+           >
               {exams.map((exam) => (
                 <motion.div 
                   layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  variants={{
+                    hidden: { opacity: 0, y: 20, scale: 0.95 },
+                    visible: { opacity: 1, y: 0, scale: 1 }
+                  }}
                   key={exam.id}
                 >
                   <Card className="border-none bg-white shadow-sm hover:shadow-xl hover:shadow-indigo-50/50 transition-all rounded-xl overflow-hidden group border border-slate-50">
@@ -225,7 +253,7 @@ const ExamLibrary = () => {
                   </Card>
                 </motion.div>
               ))}
-           </div>
+           </motion.div>
          ) : (
            <div className="py-20 text-center bg-white rounded-2xl border border-dashed border-slate-200">
               <div className="w-20 h-20 bg-slate-50 text-slate-200 flex items-center justify-center rounded-full mx-auto mb-6">

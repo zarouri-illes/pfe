@@ -122,14 +122,23 @@ export const ChatbotWidget = () => {
                  </motion.div>
                ))}
                {loading && (
-                 <div className="flex gap-3">
+                 <motion.div 
+                   initial={{ opacity: 0, y: 5 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   className="flex gap-3"
+                 >
                     <div className="w-8 h-8 rounded-lg bg-white shadow-sm text-indigo-600 flex items-center justify-center">
                        <Loader2 size={16} className="animate-spin" />
                     </div>
-                    <div className="p-4 bg-white text-slate-400 shadow-sm border border-slate-100 rounded-xl rounded-tl-none italic text-xs font-bold">
-                       L'IA réfléchit...
+                    <div className="p-4 bg-white text-slate-400 shadow-sm border border-slate-100 rounded-xl rounded-tl-none flex items-center gap-2">
+                       <span className="text-xs font-bold">L'IA réfléchit</span>
+                       <span className="flex gap-1">
+                          <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1 h-1 bg-slate-300 rounded-full" />
+                          <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1 h-1 bg-slate-300 rounded-full" />
+                          <motion.span animate={{ opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1 h-1 bg-slate-300 rounded-full" />
+                       </span>
                     </div>
-                 </div>
+                 </motion.div>
                )}
             </div>
 
@@ -180,6 +189,18 @@ export const ChatbotWidget = () => {
          </AnimatePresence>
          
          {/* Glow effect */}
+         <motion.div 
+           animate={{ 
+             scale: [1, 1.2, 1],
+             opacity: [0, 0.2, 0]
+           }}
+           transition={{ 
+             duration: 2, 
+             repeat: Infinity,
+             ease: "easeInOut"
+           }}
+           className="absolute inset-0 bg-indigo-500 rounded-lg"
+         />
          <div className="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
       </motion.button>
 

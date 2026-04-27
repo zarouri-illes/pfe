@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Link, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate, Outlet, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import Landing from './pages/Landing';
 import Register from './pages/Register';
@@ -37,15 +38,27 @@ function UserLayout() {
     <>
       <Navbar />
       <Outlet />
-      <ChatbotWidget />
     </>
   );
+}
+
+// Listens for the global insufficient-credits event from api/client.js
+// and navigates via React Router – avoiding a full page reload
+function InsufficientCreditsHandler() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handler = () => navigate('/credits');
+    window.addEventListener('insufficient-credits', handler);
+    return () => window.removeEventListener('insufficient-credits', handler);
+  }, [navigate]);
+  return null;
 }
 
 function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-gray-50 font-sans">
+        <InsufficientCreditsHandler />
         <Routes>
           {/* Public Routes with Navbar */}
           <Route element={<UserLayout />}>
@@ -82,6 +95,7 @@ function App() {
             </Route>
           </Route>
         </Routes>
+        <ChatbotWidget />
       </div>
     </BrowserRouter>
   );

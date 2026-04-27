@@ -12,7 +12,8 @@ import {
   Coins,
   History
 } from 'lucide-react';
-import { Button } from '../components/ui/button';
+import { toast } from 'sonner';
+import Skeleton from '../components/ui/skeleton';
 
 const Credits = () => {
   const { user, isAuthenticated } = useAuth();
@@ -59,19 +60,14 @@ const Credits = () => {
         method: 'POST',
         body: JSON.stringify({ packId })
       });
-      
-      console.log('Checkout API Response:', res);
-      
+
       if (res && res.checkoutUrl) {
-        console.log('Redirecting to:', res.checkoutUrl);
         window.location.href = res.checkoutUrl;
       } else {
-        console.error('Invalid checkout response:', res);
-        alert('Erreur: URL de paiement introuvable');
+        toast.error('URL de paiement introuvable. Réessayez plus tard.');
       }
     } catch (error) {
-      console.error('Checkout error:', error);
-      alert('Erreur lors du paiement');
+      toast.error(error.message || 'Erreur lors du paiement');
     } finally {
       setProcessing(null);
     }
@@ -160,13 +156,29 @@ const Credits = () => {
 
         {/* Packs Grid */}
         {loading ? (
-          <div className="grid md:grid-cols-3 gap-8">
-            {[1,2,3].map(i => <div key={i} className="h-[400px] bg-white rounded-xl animate-pulse shadow-sm"></div>)}
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[1,2,3].map(i => <Skeleton key={i} className="h-[500px] w-full rounded-xl" />)}
           </div>
         ) : (
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { 
+                opacity: 1,
+                transition: { staggerChildren: 0.1 }
+              }
+            }}
+            className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+          >
             {packs.map((pack) => (
               <motion.div
+                layout
+                variants={{
+                  hidden: { opacity: 0, scale: 0.95, y: 20 },
+                  visible: { opacity: 1, scale: 1, y: 0 }
+                }}
                 key={pack.id}
                 whileHover={{ y: -8 }}
                 className={`relative bg-white rounded-xl p-8 border-2 shadow-sm transition-all flex flex-col ${
@@ -216,7 +228,7 @@ const Credits = () => {
 
                 <button 
                   onClick={() => handleBuy(pack.id)}
-                  disabled={processing === pack.id}
+                  disabled={processing !== null}
                   className={`w-full py-4 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
                     pack.credits > 500 
                     ? 'bg-indigo-600 text-white shadow-indigo-200 hover:bg-indigo-700' 
@@ -234,7 +246,7 @@ const Credits = () => {
                 </button>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
 
         {/* Info */}

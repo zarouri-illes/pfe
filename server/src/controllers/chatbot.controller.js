@@ -34,6 +34,7 @@ const chat = asyncHandler(async (req, res, next) => {
         },
       },
     });
+    req.user.creditBalance += 1;
 
     console.error('Gemini API Error:', error);
 

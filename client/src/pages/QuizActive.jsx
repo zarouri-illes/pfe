@@ -59,8 +59,8 @@ const QuizActive = () => {
         })
       });
 
-      // Navigate to results
-      navigate(`/quiz/${attemptId}/results`, { state: { results: res.data } });
+      // Navigate to results, passing the data shape QuizResults expects
+      navigate(`/quiz/${attemptId}/results`, { state: { results: res } });
     } catch (error) {
       console.error('Submission failed:', error);
       alert('Erreur lors de la soumission du quiz.');

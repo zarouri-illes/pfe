@@ -1,9 +1,10 @@
 import { useContext } from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const ProtectedRoute = ({ adminOnly = false }) => {
   const { user, isLoading, isAuthenticated } = useContext(AuthContext);
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -14,11 +15,11 @@ const ProtectedRoute = ({ adminOnly = false }) => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
   if (adminOnly && user.role !== 'admin') {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Outlet />;

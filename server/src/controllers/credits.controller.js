@@ -5,7 +5,7 @@ const { createCheckoutSession, verifySignature } = require('../services/chargily
 /**
  * @route   GET /api/credits/packs
  * @desc    Get all active credit packs
- * @access  Private
+ * @access  Public
  */
 const getAvailablePacks = asyncHandler(async (req, res) => {
   const packs = await prisma.creditPack.findMany({
@@ -47,24 +47,22 @@ const handleWebhook = asyncHandler(async (req, res) => {
   const signature = req.headers.signature;
   const rawBody = req.body;
 
-  console.log('Webhook triggered!');
-  console.log('Signature:', signature);
-
   // 1. Verify cryptographic signature
   if (!verifySignature(signature, rawBody)) {
-    console.error('Webhook Error: Invalid signature');
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Webhook: invalid or missing HMAC signature');
+    }
     return res.status(403).json({ error: 'Invalid signature' });
   }
-
-  console.log('Signature verified successfully');
 
   // 2. Parse the safely verified raw body
   let eventData;
   try {
     eventData = JSON.parse(rawBody.toString('utf-8'));
-    console.log('Event Data Type:', eventData.type);
   } catch (err) {
-    console.error('Webhook Error: Invalid JSON payload');
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('Webhook: invalid JSON payload');
+    }
     return res.status(400).json({ error: 'Invalid JSON payload' });
   }
 

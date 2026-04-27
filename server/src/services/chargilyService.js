@@ -1,23 +1,53 @@
 const { ChargilyClient } = require('@chargily/chargily-pay');
 const crypto = require('crypto');
 
+function resolveChargilyMode() {
+  const explicit = process.env.CHARGILY_MODE;
+  if (explicit === 'live' || explicit === 'test') return explicit;
+  return process.env.NODE_ENV === 'production' ? 'live' : 'test';
+}
+
 const client = new ChargilyClient({
   api_key: process.env.CHARGILY_SECRET_KEY,
-  mode: process.env.NODE_ENV === 'production' ? 'live' : 'test',
+  mode: resolveChargilyMode(),
 });
+
+/**
+ * Use the checkout URL exactly as Chargily returns it (only normalize http→https).
+ * Rewriting hostnames (.com → .net, etc.) can break the hosted pay page (CSS/JS or routing).
+ */
+function normalizeCheckoutUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://')) {
+    return `https://${trimmed.slice('http://'.length)}`;
+  }
+  return trimmed;
+}
 
 /**
  * Creates a checkout session for a credit pack
  */
 const createCheckoutSession = async (user, pack) => {
-  console.log('Creating checkout for user:', user.id, 'pack:', pack.id);
+  const base = (process.env.FRONTEND_URL || '').replace(/\/$/, '');
+  if (!base.startsWith('http')) {
+    throw new Error('FRONTEND_URL must be a full URL (https://...) for Chargily redirects');
+  }
+
+  const backend = (process.env.BACKEND_URL || '').replace(/\/$/, '');
+  if (!backend.startsWith('http')) {
+    throw new Error('BACKEND_URL must be a full public https URL so Chargily can call your webhook');
+  }
+
   try {
     const checkout = await client.createCheckout({
       amount: pack.priceDa,
       currency: 'dzd',
-      success_url: `${process.env.FRONTEND_URL}/dashboard?payment=success`,
-      failure_url: `${process.env.FRONTEND_URL}/dashboard?payment=failed`,
-      webhook_endpoint: `${process.env.BACKEND_URL}/api/credits/webhook`,
+      success_url: `${base}/payment-success`,
+      failure_url: `${base}/payment-fail`,
+      webhook_endpoint: `${backend}/api/credits/webhook`,
+      description: `Crédits BacPrep — ${pack.name}`,
+      locale: process.env.CHARGILY_LOCALE === 'en' || process.env.CHARGILY_LOCALE === 'ar' ? process.env.CHARGILY_LOCALE : 'fr',
       metadata: {
         userId: String(user.id),
         packId: String(pack.id),
@@ -25,8 +55,7 @@ const createCheckoutSession = async (user, pack) => {
       }
     });
 
-    console.log('Chargily Response:', JSON.stringify(checkout, null, 2));
-    return checkout.checkout_url;
+    return normalizeCheckoutUrl(checkout.checkout_url);
   } catch (error) {
     console.error('Chargily SDK Error:', error);
     throw error;
@@ -41,32 +70,37 @@ const createCheckoutSession = async (user, pack) => {
  */
 const verifySignature = (signature, rawBody) => {
   if (!signature || !rawBody) {
-    console.warn('Missing signature or rawBody');
     return false;
   }
-  
-  const secret = process.env.CHARGILY_WEBHOOK_SECRET || process.env.CHARGILY_SECRET_KEY;
-  
-  // Basic check: if secret looks like a URL, it's definitely wrong
-  if (secret.startsWith('http')) {
-    console.warn('CHARGILY_WEBHOOK_SECRET seems to be a URL instead of a secret key!');
+
+  const webhookSecret = process.env.CHARGILY_WEBHOOK_SECRET;
+  const secretKey = process.env.CHARGILY_SECRET_KEY;
+  const finalSecret =
+    !webhookSecret || webhookSecret.startsWith('http') || webhookSecret.includes('YOUR_BACKEND')
+      ? secretKey
+      : webhookSecret;
+
+  if (!finalSecret || typeof finalSecret !== 'string') {
+    return false;
   }
 
-  const computedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(rawBody)
-    .digest('hex');
-    
-  console.log('Computed Signature:', computedSignature);
-  console.log('Received Signature:', signature);
+  const computedHex = crypto.createHmac('sha256', finalSecret).update(rawBody).digest('hex');
 
+  let received = String(signature).trim();
+  if (received.startsWith('sha256=')) {
+    received = received.slice(7).trim();
+  }
+
+  // Timing-safe compare (hex-encoded HMAC, same length)
   try {
-    return crypto.timingSafeEqual(
-      Buffer.from(computedSignature),
-      Buffer.from(signature)
-    );
-  } catch (e) {
-    return computedSignature === signature;
+    const a = Buffer.from(received, 'hex');
+    const b = Buffer.from(computedHex, 'hex');
+    if (a.length !== b.length || a.length === 0) {
+      return false;
+    }
+    return crypto.timingSafeEqual(a, b);
+  } catch {
+    return false;
   }
 };
 

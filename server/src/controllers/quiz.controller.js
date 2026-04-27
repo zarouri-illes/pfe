@@ -107,13 +107,22 @@ const submitQuiz = asyncHandler(async (req, res) => {
       where: {
         userId_date: {
           userId: req.user.id,
-          date: new Date().toISOString().split('T')[0] + 'T00:00:00.000Z',
+          // Use local date at UTC midnight to avoid timezone day-boundary bugs
+          date: (() => {
+            const d = new Date();
+            d.setHours(0, 0, 0, 0);
+            return d;
+          })(),
         },
       },
       update: { count: { increment: 1 } },
       create: {
         userId: req.user.id,
-        date: new Date().toISOString().split('T')[0] + 'T00:00:00.000Z',
+        date: (() => {
+          const d = new Date();
+          d.setHours(0, 0, 0, 0);
+          return d;
+        })(),
         count: 1,
       },
     }),
@@ -145,4 +154,58 @@ const submitQuiz = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { startQuiz, submitQuiz };
+/**
+ * @route   GET /api/quiz/:attemptId/results
+ * @desc    Fetch the results of a completed, owned attempt (for page-refresh support)
+ * @access  Private
+ */
+const getAttemptResults = asyncHandler(async (req, res) => {
+  const attemptId = parseInt(req.params.attemptId, 10);
+
+  const attempt = await prisma.attempt.findUnique({
+    where: { id: attemptId },
+    include: {
+      answers: {
+        include: { question: true },
+      },
+    },
+  });
+
+  if (!attempt) {
+    return res.status(404).json({ error: 'Attempt not found' });
+  }
+
+  if (attempt.userId !== req.user.id) {
+    return res.status(403).json({ error: 'You do not own this attempt' });
+  }
+
+  if (!attempt.submittedAt) {
+    return res.status(400).json({ error: 'This attempt has not been submitted yet' });
+  }
+
+  const breakdown = attempt.answers.map(a => ({
+    questionId: a.questionId,
+    content: a.question.content,
+    type: a.question.type,
+    studentAnswer: a.studentAnswer,
+    correctAnswer: a.question.correctAnswer,
+    isCorrect: a.isCorrect,
+    score: a.score,
+    maxPoints: a.question.points,
+  }));
+
+  const percentage = attempt.maxScore > 0
+    ? Math.round((attempt.totalScore / attempt.maxScore) * 100)
+    : 0;
+
+  res.status(200).json({
+    data: {
+      score: attempt.totalScore,
+      maxScore: attempt.maxScore,
+      percentage,
+      breakdown,
+    },
+  });
+});
+
+module.exports = { startQuiz, submitQuiz, getAttemptResults };

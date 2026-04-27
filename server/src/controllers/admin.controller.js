@@ -470,33 +470,39 @@ const getExamFile = asyncHandler(async (req, res) => {
   const exam = await prisma.exam.findUnique({ where: { id: parseInt(id) } });
 
   if (!exam) {
-    res.status(404);
-    throw new Error('Examen non trouvé');
+    return res.status(404).json({ error: 'Examen non trouvé' });
   }
 
   try {
-    const cloudinary = require('cloudinary').v2;
-    // Extract version from the original URL (e.g., v171... -> 171...)
-    const versionMatch = exam.fileUrl.match(/\/upload\/v(\d+)\//);
-    const version = versionMatch ? versionMatch[1] : undefined;
+    let fetchUrl = exam.fileUrl;
 
-    // Generate a signed URL for secure access
-    const signedUrl = cloudinary.url(`${exam.publicId}.pdf`, {
-      sign_url: true,
-      secure: true,
-      resource_type: 'image',
-      version: version
-    });
+    if (exam.publicId) {
+      const cloudinary = require('cloudinary').v2;
+      const versionMatch = exam.fileUrl.match(/\/upload\/v(\d+)\//);
+      const version = versionMatch ? versionMatch[1] : undefined;
 
-    console.log('DEBUG: Streaming from Signed URL:', signedUrl);
-    const response = await fetch(signedUrl, {
+      const publicIdForSigning = exam.publicId.endsWith('.pdf')
+        ? exam.publicId
+        : `${exam.publicId}.pdf`;
+
+      fetchUrl = cloudinary.url(publicIdForSigning, {
+        sign_url: true,
+        secure: true,
+        resource_type: 'auto',
+        version: version
+      });
+    }
+
+    const response = await fetch(fetchUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       }
     });
     
     if (!response.ok) {
-      console.error(`DEBUG: Cloudinary Fetch Failed | Status: ${response.status} | Text: ${response.statusText}`);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('Cloudinary fetch failed:', response.status, response.statusText);
+      }
       throw new Error(`Erreur Cloudinary: ${response.status} ${response.statusText}`);
     }
 

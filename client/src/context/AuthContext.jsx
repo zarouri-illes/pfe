@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
 
   const login = (newToken, userData) => {
     localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(userData));
+    // Note: we do NOT persist the user object in localStorage — it is re-fetched from /api/auth/me
     setToken(newToken);
     setUser(userData);
     setCreditBalance(userData.creditBalance);

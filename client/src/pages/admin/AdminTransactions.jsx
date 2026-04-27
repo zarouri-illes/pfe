@@ -22,6 +22,12 @@ import { Card, CardContent } from '../../components/ui/card';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+/** Backend persists Chargily-paid rows as COMPLETED; keep filters aligned. */
+const isSuccessfulTx = (status) => {
+  const s = (status || '').toLowerCase();
+  return s === 'success' || s === 'completed' || s === 'paid';
+};
+
 const AdminTransactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +89,10 @@ const AdminTransactions = () => {
       t.user?.email?.toLowerCase().includes(search.toLowerCase()) ||
       t.chargilyId?.toLowerCase().includes(search.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || t.status.toLowerCase() === statusFilter.toLowerCase();
+    const matchesStatus =
+      statusFilter === 'all' ||
+      (statusFilter === 'success' && isSuccessfulTx(t.status)) ||
+      (statusFilter !== 'success' && t.status.toLowerCase() === statusFilter.toLowerCase());
     
     return matchesSearch && matchesStatus;
   });
@@ -103,7 +112,7 @@ const AdminTransactions = () => {
 
     // Summary Stats
     const totalRev = filteredTransactions
-      .filter(t => t.status.toLowerCase() === 'success')
+      .filter((t) => isSuccessfulTx(t.status))
       .reduce((acc, curr) => acc + curr.amountDa, 0);
 
     doc.setFontSize(12);
@@ -135,7 +144,7 @@ const AdminTransactions = () => {
   };
 
   const totalRevenue = transactions
-    .filter(t => t.status.toLowerCase() === 'success')
+    .filter((t) => isSuccessfulTx(t.status))
     .reduce((acc, curr) => acc + curr.amountDa, 0);
 
   return (

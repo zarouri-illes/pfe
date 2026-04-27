@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { startQuiz, submitQuiz } = require('../controllers/quiz.controller');
+const { startQuiz, submitQuiz, getAttemptResults } = require('../controllers/quiz.controller');
 const { verifyToken } = require('../middleware/auth');
 const { requireCredits } = require('../middleware/credits');
 const { validate } = require('../middleware/validate');
@@ -54,10 +54,14 @@ router.post(
   verifyToken,
   [
     body('attemptId').isInt().withMessage('attemptId must be an integer'),
-    body('answers').isArray().withMessage('answers must be an array'),
+    body('answers').isArray({ min: 1 }).withMessage('answers must be a non-empty array'),
+    body('answers.*.questionId').isInt({ min: 1 }).withMessage('Each answer must have a valid questionId'),
+    body('answers.*.answer').exists().withMessage('Each answer must include an answer field'),
     validate,
   ],
   submitQuiz
 );
+
+router.get('/:attemptId/results', verifyToken, getAttemptResults);
 
 module.exports = router;

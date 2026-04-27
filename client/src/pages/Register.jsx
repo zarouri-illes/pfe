@@ -36,8 +36,7 @@ export default function Register() {
           password: formData.password
         })
       });
-      
-      console.log('Registration data:', res);
+
       navigate('/login');
     } catch (err) {
       setError(err.message || "Une erreur est survenue lors de l'inscription.");

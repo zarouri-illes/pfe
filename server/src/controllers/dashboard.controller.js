@@ -23,23 +23,62 @@ const getDashboardData = asyncHandler(async (req, res) => {
   const diffTime = Math.abs(bacDate - today);
   const daysUntilBac = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  // 3. Recent Attempts (Last 5 completed)
-  const attemptsData = await prisma.attempt.findMany({
-    where: { 
-      userId, 
-      submittedAt: { not: null } 
-    },
-    orderBy: { submittedAt: 'desc' },
-    take: 5,
-    include: {
-      chapter: {
-        select: {
-          name: true,
-          subject: { select: { name: true } }
+  // 3–8. Run all independent DB queries in parallel for performance
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+  const [attemptsData, statsRows, subjectStatsRows, activities, goalsCount, completedGoalsCount] =
+    await Promise.all([
+      // 3. Recent Attempts (Last 5 completed)
+      prisma.attempt.findMany({
+        where: { userId, submittedAt: { not: null } },
+        orderBy: { submittedAt: 'desc' },
+        take: 5,
+        include: {
+          chapter: {
+            select: { name: true, subject: { select: { name: true } } }
+          }
         }
-      }
-    }
-  });
+      }),
+
+      // 4. Chapter Stats
+      prisma.$queryRaw`
+        SELECT 
+          c.id as "chapterId",
+          c.name as "chapterName",
+          CAST(COUNT(a.id) AS INTEGER) as "attemptCount",
+          COALESCE(AVG(CAST(a.total_score AS FLOAT) / NULLIF(a.max_score, 0)) * 100, 0) as "averagePercentage"
+        FROM attempts a
+        JOIN chapters c ON a.chapter_id = c.id
+        WHERE a.user_id = ${userId} AND a.submitted_at IS NOT NULL
+        GROUP BY c.id, c.name
+      `,
+
+      // 6. Subject Progression
+      prisma.$queryRaw`
+        SELECT 
+          s.id as "subjectId",
+          s.name as "subjectName",
+          COALESCE(AVG(CAST(a.total_score AS FLOAT) / NULLIF(a.max_score, 0)) * 100, 0) as "averagePercentage"
+        FROM attempts a
+        JOIN chapters c ON a.chapter_id = c.id
+        JOIN subjects s ON c.subject_id = s.id
+        WHERE a.user_id = ${userId} AND a.submitted_at IS NOT NULL
+        GROUP BY s.id, s.name
+      `,
+
+      // 7. Activity Heatmap (Last 1 year)
+      prisma.activity.findMany({
+        where: { userId, date: { gte: oneYearAgo } },
+        select: { date: true, count: true }
+      }),
+
+      // 8a. Total Goals
+      prisma.goal.count({ where: { userId } }),
+
+      // 8b. Completed Goals
+      prisma.goal.count({ where: { userId, isCompleted: true } }),
+    ]);
 
   const recentAttempts = attemptsData.map(a => ({
     id: a.id,
@@ -49,19 +88,6 @@ const getDashboardData = asyncHandler(async (req, res) => {
     submittedAt: a.submittedAt
   }));
 
-  // 4. Chapter Stats (Raw SQL to correctly calculate average percentage across completely differing max_score variants)
-  const statsRows = await prisma.$queryRaw`
-    SELECT 
-      c.id as "chapterId",
-      c.name as "chapterName",
-      CAST(COUNT(a.id) AS INTEGER) as "attemptCount",
-      COALESCE(AVG(CAST(a.total_score AS FLOAT) / NULLIF(a.max_score, 0)) * 100, 0) as "averagePercentage"
-    FROM attempts a
-    JOIN chapters c ON a.chapter_id = c.id
-    WHERE a.user_id = ${userId} AND a.submitted_at IS NOT NULL
-    GROUP BY c.id, c.name
-  `;
-
   const chapterStats = statsRows.map(row => ({
     chapterId: row.chapterId,
     chapterName: row.chapterName,
@@ -69,49 +95,17 @@ const getDashboardData = asyncHandler(async (req, res) => {
     averagePercentage: Math.round(Number(row.averagePercentage))
   }));
 
-  // 5. Weakest Chapters (bottom 3 among chapters with at least 2 attempts to filter out single-try flukes)
+  // 5. Weakest Chapters (bottom 3 with at least 2 attempts)
   const weakestChapters = chapterStats
     .filter(stat => stat.attemptCount >= 2)
     .sort((a, b) => a.averagePercentage - b.averagePercentage)
     .slice(0, 3);
-
-  // 6. Subject Progression (Grouped by subject)
-  const subjectStatsRows = await prisma.$queryRaw`
-    SELECT 
-      s.id as "subjectId",
-      s.name as "subjectName",
-      COALESCE(AVG(CAST(a.total_score AS FLOAT) / NULLIF(a.max_score, 0)) * 100, 0) as "averagePercentage"
-    FROM attempts a
-    JOIN chapters c ON a.chapter_id = c.id
-    JOIN subjects s ON c.subject_id = s.id
-    WHERE a.user_id = ${userId} AND a.submitted_at IS NOT NULL
-    GROUP BY s.id, s.name
-  `;
 
   const subjectStats = subjectStatsRows.map(row => ({
     subjectId: row.subjectId,
     subjectName: row.subjectName,
     averagePercentage: Math.round(Number(row.averagePercentage))
   }));
-
-  // 7. Activity Heatmap (Last 1 year)
-  const oneYearAgo = new Date();
-  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-
-  const activities = await prisma.activity.findMany({
-    where: {
-      userId,
-      date: { gte: oneYearAgo }
-    },
-    select: {
-      date: true,
-      count: true
-    }
-  });
-
-  // 8. Goals Overview
-  const goalsCount = await prisma.goal.count({ where: { userId } });
-  const completedGoalsCount = await prisma.goal.count({ where: { userId, isCompleted: true } });
 
   // 9. AI Recommendations
   let recommendations = "Start practicing to get personalized AI recommendations!";

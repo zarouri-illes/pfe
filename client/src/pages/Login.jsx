@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Mail, Lock } from 'lucide-react';
@@ -9,6 +9,8 @@ import api from '../api/client';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from;
   const { login } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: '',
@@ -32,13 +34,15 @@ export default function Login() {
       });
       
       login(res.data.token, res.data.user);
-      
-      console.log('Login success:', res.data);
-      
+
       if (res.data.user.role === 'admin') {
         navigate('/admin/dashboard');
       } else {
-        navigate('/');
+        const dest =
+          typeof from === 'string' && from.startsWith('/') && from !== '/login'
+            ? from
+            : '/dashboard';
+        navigate(dest);
       }
     } catch (err) {
       setError(err.message || 'Identifiants invalides.');
@@ -114,9 +118,7 @@ export default function Login() {
                 />
               </div>
               <div className="text-right mt-1.5">
-                <a href="#" className="text-xs font-bold text-[#1e3a8a] py-1 border-b border-transparent hover:border-[#1e3a8a] transition-all">
-                  Mot de passe oublié ?
-                </a>
+                {/* Password reset is not yet implemented */}
               </div>
             </div>
 

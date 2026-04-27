@@ -33,8 +33,10 @@ const api = async (path, options = {}) => {
   }
 
   // Handle 402 globally — insufficient credits
+  // Dispatch a custom event so React Router components can listen and navigate
+  // instead of a full page reload via window.location.href
   if (res.status === 402) {
-    window.location.href = '/credits';
+    window.dispatchEvent(new CustomEvent('insufficient-credits'));
     throw new Error('Insufficient credits');
   }
 

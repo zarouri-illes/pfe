@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -5,29 +6,64 @@ import {
   XCircle, 
   CheckCircle2, 
   ArrowLeft, 
-  RotateCcw, 
+  RotateCcw,
   BookOpen, 
   Zap,
   TrendingUp,
-  ChevronDown,
-  Layout
+  Layout,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import Skeleton from '../components/ui/skeleton';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import api from '../api/client';
 
 const QuizResults = () => {
   const { attemptId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const results = location.state?.results?.data;
 
-  if (!results) {
+  // Try to restore from router state first (fast path: coming directly from quiz)
+  // Fall back to a fresh API fetch on page refresh
+  const stateResults = location.state?.results?.data || location.state?.results;
+  const [results, setResults] = useState(stateResults || null);
+  const [loading, setLoading] = useState(!stateResults);
+  const [fetchError, setFetchError] = useState(null);
+
+  useEffect(() => {
+    if (stateResults || results) return; // already have data
+    const fetchResults = async () => {
+      try {
+        const res = await api(`/api/quiz/${attemptId}/results`);
+        setResults(res.data);
+      } catch (err) {
+        setFetchError(err.message || 'Impossible de charger les résultats.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResults();
+  }, [attemptId]);
+
+  if (loading) {
+    return (
+      <div className="p-4 md:p-8 lg:p-10 space-y-8">
+        <Skeleton className="h-72 w-full rounded-[3rem]" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}
+        </div>
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </div>
+    );
+  }
+
+  if (fetchError || !results) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
         <XCircle size={48} className="text-rose-500 mb-4" />
         <h1 className="text-2xl font-black text-slate-900">Résultats Introuvables</h1>
-        <p className="text-slate-500 font-bold mt-2">Veuillez retourner au tableau de bord.</p>
+        <p className="text-slate-500 font-bold mt-2">{fetchError || 'Veuillez retourner au tableau de bord.'}</p>
         <Button onClick={() => navigate('/dashboard')} className="mt-8 rounded-full">
            Retourner au Dashboard
         </Button>
@@ -121,7 +157,7 @@ const QuizResults = () => {
       </section>
 
       {/* 2. STATS GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
          <Card className="border-none bg-white shadow-sm rounded-xl p-8 border border-slate-50">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Points Obtenus</p>
             <div className="flex items-center justify-between">
@@ -132,16 +168,7 @@ const QuizResults = () => {
             </div>
          </Card>
          <Card className="border-none bg-white shadow-sm rounded-xl p-8 border border-slate-50">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">XP Gagné</p>
-            <div className="flex items-center justify-between">
-               <span className="text-3xl font-black text-slate-900">+{percentage * 2}</span>
-               <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-                  <TrendingUp size={18} />
-               </div>
-            </div>
-         </Card>
-         <Card className="border-none bg-white shadow-sm rounded-xl p-8 border border-slate-50">
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Status Attempt</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Statut</p>
             <div className="flex items-center justify-between">
                <span className="text-xl font-black text-slate-900 uppercase tracking-tight">Soumis ✅</span>
                <div className="w-10 h-10 bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center">
@@ -166,8 +193,8 @@ const QuizResults = () => {
               <motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                key={idx}
+                transition={{ delay: idx * 0.05 }}
+                key={item.questionId || idx}
               >
                 <Card className={`border-none ${item.isCorrect ? 'bg-emerald-50/20' : 'bg-rose-50/20'} rounded-xl overflow-hidden transition-all hover:shadow-md`}>
                    <CardContent className="p-0">
