@@ -16,6 +16,7 @@ import {
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import Skeleton from '../components/ui/skeleton';
+import LatexRenderer from '../components/LatexRenderer';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import api from '../api/client';
 
@@ -211,22 +212,24 @@ const QuizResults = () => {
                          <div className="flex-grow space-y-6">
                             <div>
                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Question {idx + 1}</p>
-                               <h4 className="text-lg font-bold text-slate-800 leading-snug">{item.content}</h4>
+                               <div className="text-lg font-bold text-slate-800 leading-snug">
+                                 <LatexRenderer content={item.content} />
+                               </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                <div className="p-4 bg-white rounded-lg border border-slate-100 shadow-sm">
                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Votre Réponse</p>
-                                  <p className={`text-sm font-black ${item.isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>
-                                     {item.studentAnswer || '(Aucune réponse)'}
-                                  </p>
+                                  <div className={`text-sm font-black ${item.isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                     <LatexRenderer content={item.studentAnswer || '(Aucune réponse)'} />
+                                  </div>
                                </div>
                                {!item.isCorrect && (
                                  <div className="p-4 bg-white rounded-lg border border-emerald-100 shadow-sm ring-1 ring-emerald-50">
                                     <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1.5">Solution Correcte</p>
-                                    <p className="text-sm font-black text-emerald-600">
-                                       {item.correctAnswer}
-                                    </p>
+                                    <div className="text-sm font-black text-emerald-600">
+                                       <LatexRenderer content={item.correctAnswer} />
+                                    </div>
                                  </div>
                                )}
                             </div>

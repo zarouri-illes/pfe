@@ -18,6 +18,7 @@ const getAllSubjects = asyncHandler(async (req, res) => {
           name: true,
           orderIndex: true,
           creditCost: true,
+          _count: { select: { questions: true } }
         },
       },
     },

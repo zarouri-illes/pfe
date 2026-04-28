@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import LatexRenderer from '../components/LatexRenderer';
 
 const QuizActive = () => {
   const { attemptId } = useParams();
@@ -34,10 +35,10 @@ const QuizActive = () => {
     }
   }, [questions, navigate]);
 
-  const handleAnswerChange = (questionId, value) => {
+  const handleAnswerChange = (questionId, value, index = null) => {
     setAnswers(prev => ({
       ...prev,
-      [questionId]: value
+      [questionId]: index !== null ? { value, index } : value
     }));
   };
 
@@ -46,10 +47,14 @@ const QuizActive = () => {
       setSubmitting(true);
       
       // Format answers for API
-      const formattedAnswers = questions.map(q => ({
-        questionId: q.id,
-        studentAnswer: String(answers[q.id] || '')
-      }));
+      const formattedAnswers = questions.map(q => {
+        const ans = answers[q.id];
+        const val = (ans && typeof ans === 'object') ? ans.value : (ans || '');
+        return {
+          questionId: q.id,
+          studentAnswer: String(val)
+        };
+      });
 
       const res = await api('/api/quiz/submit', {
         method: 'POST',
@@ -73,7 +78,12 @@ const QuizActive = () => {
 
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
-  const answeredCount = Object.keys(answers).filter(k => answers[k] !== undefined && answers[k] !== '').length;
+  const answeredCount = Object.keys(answers).filter(k => {
+    const ans = answers[k];
+    if (ans === undefined) return false;
+    if (typeof ans === 'object' && ans !== null) return ans.value !== '';
+    return ans !== '';
+  }).length;
 
   return (
     <div className="p-4 md:p-8 lg:p-10 pb-24 space-y-8">
@@ -130,9 +140,9 @@ const QuizActive = () => {
                      <span className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-xs shrink-0">
                         Q
                      </span>
-                     <h2 className="text-xl lg:text-2xl font-bold text-slate-900 leading-snug">
-                        {currentQuestion.content}
-                     </h2>
+                     <div className="text-xl lg:text-2xl font-bold text-slate-900 leading-snug w-full">
+                        <LatexRenderer content={currentQuestion.content} />
+                     </div>
                   </div>
 
                   {currentQuestion.imageUrl && (
@@ -160,9 +170,9 @@ const QuizActive = () => {
                                }`}>
                                   {answers[currentQuestion.id] === option && <CheckCircle size={14} className="text-white" />}
                                </div>
-                               <span className={`text-sm font-bold ${answers[currentQuestion.id] === option ? 'text-indigo-900' : 'text-slate-700'}`}>
-                                  {option}
-                               </span>
+                               <div className={`text-sm font-bold flex-1 ${answers[currentQuestion.id] === option ? 'text-indigo-900' : 'text-slate-700'}`}>
+                                  <LatexRenderer content={option} />
+                               </div>
                             </button>
                           ))}
                        </div>

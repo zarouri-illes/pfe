@@ -21,6 +21,7 @@ import {
   MoreHorizontal
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
+import LatexRenderer from '../../components/LatexRenderer';
 
 const AdminQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -47,6 +48,7 @@ const AdminQuestions = () => {
     content: '',
     options: ['', '', '', ''],
     correctAnswer: '',
+    correctAnswerIndex: null,
     points: 10,
     image: null,
     imagePreview: null
@@ -145,13 +147,23 @@ const AdminQuestions = () => {
   const handleEdit = (q) => {
     if (!q) return;
     setEditingId(q.id);
+    
+    // Check if the old structure matches options
+    const opts = Array.isArray(q.options) ? q.options : ['', '', '', ''];
+    let cIndex = null;
+    if (q.type === 'mcq' && q.correctAnswer) {
+      const idx = opts.findIndex(o => o === q.correctAnswer);
+      if (idx !== -1) cIndex = idx;
+    }
+
     setFormData({
       subjectId: q.chapter?.subjectId ? String(q.chapter.subjectId) : '',
       chapterId: q.chapterId ? String(q.chapterId) : '',
       type: q.type || 'mcq',
       content: q.content || '',
-      options: Array.isArray(q.options) ? q.options : ['', '', '', ''],
+      options: opts,
       correctAnswer: q.correctAnswer || '',
+      correctAnswerIndex: cIndex,
       points: q.points || 10,
       image: null,
       imagePreview: q.imageUrl || null
@@ -187,6 +199,7 @@ const AdminQuestions = () => {
       content: '',
       options: ['', '', '', ''],
       correctAnswer: '',
+      correctAnswerIndex: null,
       points: 10,
       image: null,
       imagePreview: null
@@ -287,7 +300,9 @@ const AdminQuestions = () => {
                            <HelpCircle size={16} />
                          </div>
                          <div>
-                            <p className="text-sm font-bold text-slate-900 line-clamp-2">{q.content}</p>
+                            <div className="text-sm font-bold text-slate-900 line-clamp-2 w-full">
+                               <LatexRenderer content={q.content} />
+                            </div>
                             {q.imageUrl && (
                               <div className="mt-2 flex items-center gap-1.5 text-[10px] font-black text-indigo-600 uppercase">
                                 <ImageIcon size={12} /> Image active
@@ -491,11 +506,11 @@ const AdminQuestions = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {formData.options.map((opt, i) => (
                         <div key={i} className="flex items-center gap-3">
-                           <button
+                            <button
                              type="button"
-                             onClick={() => setFormData({...formData, correctAnswer: opt})}
+                             onClick={() => setFormData({...formData, correctAnswer: opt, correctAnswerIndex: i})}
                              className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all ${
-                               formData.correctAnswer === opt && opt !== ''
+                               formData.correctAnswerIndex === i
                                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200'
                                : 'bg-slate-100 text-slate-400'
                              }`}
@@ -505,14 +520,18 @@ const AdminQuestions = () => {
                            <input 
                              type="text"
                              className={`flex-1 px-4 py-2 bg-slate-50 border rounded-xl text-sm font-semibold outline-none transition-all ${
-                               formData.correctAnswer === opt && opt !== '' ? 'border-emerald-500/50 bg-emerald-50/10' : 'border-slate-200'
+                               formData.correctAnswerIndex === i ? 'border-emerald-500/50 bg-emerald-50/10' : 'border-slate-200'
                              }`}
                              placeholder={`Option ${String.fromCharCode(65 + i)}`}
                              value={opt}
                              onChange={(e) => {
                                const newOpts = [...formData.options];
                                newOpts[i] = e.target.value;
-                               setFormData({...formData, options: newOpts});
+                               setFormData(prev => ({
+                                 ...prev, 
+                                 options: newOpts,
+                                 correctAnswer: prev.correctAnswerIndex === i ? e.target.value : prev.correctAnswer
+                               }));
                              }}
                            />
                         </div>
@@ -590,9 +609,9 @@ const AdminQuestions = () => {
               <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
                 <div className="space-y-4">
                   <p className="text-sm font-black text-slate-400 uppercase tracking-widest leading-none">Énoncé</p>
-                  <p className="text-lg font-bold text-slate-900 bg-slate-50 p-6 rounded-lg border border-slate-100 italic">
-                    "{selectedQuestion.content}"
-                  </p>
+                  <div className="text-lg font-bold text-slate-900 bg-slate-50 p-6 rounded-lg border border-slate-100 italic">
+                    <LatexRenderer content={selectedQuestion.content} />
+                  </div>
                 </div>
 
                 {selectedQuestion.imageUrl && (
@@ -637,9 +656,9 @@ const AdminQuestions = () => {
                           }`}>
                             {String.fromCharCode(65 + i)}
                           </div>
-                          <span className={`text-sm font-bold ${opt === selectedQuestion.correctAnswer ? 'text-emerald-700' : 'text-slate-600'}`}>
-                            {opt}
-                          </span>
+                          <div className={`text-sm font-bold overflow-hidden ${opt === selectedQuestion.correctAnswer ? 'text-emerald-700' : 'text-slate-600'}`}>
+                            <LatexRenderer content={opt} />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -650,7 +669,7 @@ const AdminQuestions = () => {
                   <div className="space-y-4">
                     <p className="text-sm font-black text-slate-400 uppercase tracking-widest leading-none">Réponse Correcte</p>
                     <div className="p-4 bg-emerald-50 border border-emerald-500/30 rounded-xl">
-                       <span className="text-xl font-black text-emerald-600">{selectedQuestion.correctAnswer}</span>
+                       <div className="text-xl font-black text-emerald-600"><LatexRenderer content={selectedQuestion.correctAnswer} /></div>
                     </div>
                   </div>
                 )}

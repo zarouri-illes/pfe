@@ -14,10 +14,14 @@ cloudinary.config({
  * @param {string} folder - The destination folder in Cloudinary
  * @returns {Promise<Object>} The Cloudinary asset response containing the secure_url
  */
-const uploadBufferToCloudinary = (buffer, folder = 'bacprep/exams') => {
+const uploadBufferToCloudinary = (buffer, folder = 'bacprep/exams', customResourceType = null) => {
   return new Promise((resolve, reject) => {
+    // Exams/PDFs must be uploaded as raw to preserve the exact file format and prevent 
+    // Cloudinary from treating them as image transformations
+    const resourceType = customResourceType || (folder.includes('exam') ? 'raw' : 'auto');
+
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: 'auto' }, // auto allows PDF
+      { folder, resource_type: resourceType },
       (error, result) => {
         if (error) return reject(error);
         resolve(result);

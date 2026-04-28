@@ -145,13 +145,8 @@ const deleteQuestion = asyncHandler(async (req, res) => {
     }
   }
 
-  // 0. Check if any Answer records reference this question to avoid corrupted history
-  const answerCount = await prisma.answer.count({ where: { questionId: parseInt(id, 10) } });
-  if (answerCount > 0) {
-    return res.status(409).json({ 
-      error: 'Cannot delete question because it has existing student answers. Deactivating it is recommended instead (if implemented).' 
-    });
-  }
+  // Delete all associated answers first to prevent foreign key constraint conflicts
+  await prisma.answer.deleteMany({ where: { questionId: parseInt(id, 10) } });
 
   await prisma.question.delete({ where: { id: parseInt(id, 10) } });
   res.status(200).json({ message: 'Question deleted successfully' });
@@ -480,15 +475,20 @@ const getExamFile = asyncHandler(async (req, res) => {
       const cloudinary = require('cloudinary').v2;
       const versionMatch = exam.fileUrl.match(/\/upload\/v(\d+)\//);
       const version = versionMatch ? versionMatch[1] : undefined;
+      
+      const isRaw = exam.fileUrl.includes('/raw/upload/');
+      const detectedResourceType = isRaw ? 'raw' : 'image';
 
-      const publicIdForSigning = exam.publicId.endsWith('.pdf')
-        ? exam.publicId
-        : `${exam.publicId}.pdf`;
+      // For raw resources, the .pdf extension is literally part of the ID path if it was appended
+      // For images, the public ID does not have the extension
+      const publicIdForSigning = (isRaw && !exam.publicId.endsWith('.pdf'))
+        ? `${exam.publicId}.pdf`
+        : exam.publicId;
 
       fetchUrl = cloudinary.url(publicIdForSigning, {
         sign_url: true,
         secure: true,
-        resource_type: 'auto',
+        resource_type: detectedResourceType,
         version: version
       });
     }

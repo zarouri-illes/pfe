@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useAuth } from '../hooks/useAuth';
+import LatexRenderer from './LatexRenderer';
 
 export const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -112,12 +113,12 @@ export const ChatbotWidget = () => {
                     }`}>
                        {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                     </div>
-                    <div className={`max-w-[80%] p-4 rounded-xl text-sm font-bold leading-relaxed ${
+                    <div className={`max-w-[80%] p-4 rounded-xl text-sm font-bold leading-relaxed overflow-x-auto ${
                       msg.role === 'user' 
                       ? 'bg-indigo-600 text-white rounded-tr-none' 
                       : 'bg-white text-slate-700 shadow-sm border border-slate-100 rounded-tl-none'
                     }`}>
-                       {msg.content}
+                       {msg.role === 'user' ? msg.content : <LatexRenderer content={msg.content} />}
                     </div>
                  </motion.div>
                ))}

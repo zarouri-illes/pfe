@@ -167,42 +167,54 @@ const QuizSelect = () => {
                     }}
                     key={chapter.id}
                   >
-                    <Card className="border-none bg-white shadow-sm hover:shadow-2xl hover:shadow-indigo-50 transition-all rounded-2xl overflow-hidden group border border-slate-50">
-                      <CardContent className="p-8 space-y-6">
-                         <div className="flex items-center justify-between">
-                            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 flex items-center justify-center rounded-lg group-hover:scale-110 transition-transform">
-                               <BookOpen size={24} />
-                            </div>
-                            <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border flex items-center gap-2 ${
-                               creditBalance >= chapter.creditCost 
-                               ? 'bg-amber-50 text-amber-600 border-amber-100' 
-                               : 'bg-rose-50 text-rose-600 border-rose-100'
-                            }`}>
-                               <Coins size={12} />
-                               {chapter.creditCost} Crédits
-                            </div>
-                         </div>
+                    {(() => {
+                      const hasQuestions = chapter._count?.questions > 0;
+                      return (
+                      <Card className={`border border-slate-100 rounded-2xl overflow-hidden transition-all ${hasQuestions ? 'bg-white shadow-sm hover:shadow-2xl hover:shadow-indigo-50 group border-none' : 'bg-slate-50/50 opacity-60 grayscale-[50%]'}`}>
+                        <CardContent className="p-8 space-y-6">
+                           <div className="flex items-center justify-between">
+                              <div className={`w-12 h-12 flex items-center justify-center rounded-lg transition-transform ${hasQuestions ? 'bg-indigo-50 text-indigo-600 group-hover:scale-110' : 'bg-slate-200 text-slate-400'}`}>
+                                 <BookOpen size={24} />
+                              </div>
+                              <div className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border flex items-center gap-2 ${
+                                 !hasQuestions ? 'bg-slate-100 border-slate-200 text-slate-400' :
+                                 creditBalance >= chapter.creditCost 
+                                 ? 'bg-amber-50 text-amber-600 border-amber-100' 
+                                 : 'bg-rose-50 text-rose-600 border-rose-100'
+                              }`}>
+                                 <Coins size={12} />
+                                 {chapter.creditCost} Crédits
+                              </div>
+                           </div>
 
-                         <div className="min-h-[60px]">
-                            <h3 className="text-xl font-black text-slate-800 tracking-tight leading-tight group-hover:text-indigo-600 transition-colors">
-                               {chapter.name}
-                            </h3>
-                         </div>
+                           <div className="min-h-[60px]">
+                              <h3 className={`text-xl font-black tracking-tight leading-tight transition-colors ${hasQuestions ? 'text-slate-800 group-hover:text-indigo-600' : 'text-slate-500'}`}>
+                                 {chapter.name}
+                              </h3>
+                              {!hasQuestions && <p className="text-xs font-bold text-rose-500 mt-1">À venir prochainement</p>}
+                           </div>
 
-                         <div className="pt-6 border-t border-slate-50 flex items-center gap-3">
-                            <Button 
-                              className="flex-grow h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 group-hover:px-8 transition-all"
-                              onClick={() => handleStartQuiz(chapter.id)}
-                              disabled={creditBalance < chapter.creditCost}
-                            >
-                               {creditBalance < chapter.creditCost ? 'Fonds Insuffisants' : 'Commencer'} <Play size={14} className="ml-2 fill-white" />
-                            </Button>
-                            <div className="w-12 h-12 bg-slate-50 flex items-center justify-center rounded-lg text-slate-400 group-hover:text-indigo-600 transition-colors">
-                               <Zap size={18} />
-                            </div>
-                         </div>
-                      </CardContent>
-                    </Card>
+                           <div className="pt-6 border-t border-slate-50 flex items-center gap-3">
+                              <Button 
+                                className={`flex-grow h-12 text-white rounded-lg text-xs font-black uppercase tracking-widest shadow-none transition-all ${
+                                  hasQuestions 
+                                  ? 'bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100 group-hover:px-8' 
+                                  : 'bg-slate-300 hover:bg-slate-300 cursor-not-allowed'
+                                }`}
+                                onClick={hasQuestions ? () => handleStartQuiz(chapter.id) : undefined}
+                                disabled={!hasQuestions || creditBalance < chapter.creditCost}
+                              >
+                                 {!hasQuestions ? 'Indisponible' : creditBalance < chapter.creditCost ? 'Fonds Insuffisants' : 'Commencer'} 
+                                 {hasQuestions && <Play size={14} className="ml-2 fill-white" />}
+                              </Button>
+                              <div className={`w-12 h-12 flex items-center justify-center rounded-lg transition-colors ${hasQuestions ? 'bg-slate-50 text-slate-400 group-hover:text-indigo-600' : 'bg-slate-100 text-slate-400'}`}>
+                                 <Zap size={18} />
+                              </div>
+                           </div>
+                        </CardContent>
+                      </Card>
+                      );
+                    })()}
                   </motion.div>
                 ))}
               </motion.div>

@@ -56,7 +56,7 @@ router.post(
     body('attemptId').isInt().withMessage('attemptId must be an integer'),
     body('answers').isArray({ min: 1 }).withMessage('answers must be a non-empty array'),
     body('answers.*.questionId').isInt({ min: 1 }).withMessage('Each answer must have a valid questionId'),
-    body('answers.*.answer').exists().withMessage('Each answer must include an answer field'),
+    body('answers.*.studentAnswer').exists().withMessage('Each answer must include an studentAnswer field'),
     validate,
   ],
   submitQuiz
