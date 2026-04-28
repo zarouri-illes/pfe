@@ -24,7 +24,11 @@ app.use(helmet());
 
 // 2. CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: [
+    process.env.FRONTEND_URL,
+    'https://pfe-delta-coral.vercel.app',
+    'http://localhost:5173'
+  ].filter(Boolean),
   credentials: true
 }));
 
