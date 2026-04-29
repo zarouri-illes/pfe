@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Zap, CheckCircle } from 'lucide-react';
 
-export const PricingCard = ({ title, price, credits, features, recommended }) => (
+export const PricingCard = ({ title, price, credits, recommended }) => (
   <motion.div 
     whileHover={{ y: -8 }}
     className={`relative p-8 rounded-lg bg-white border flex flex-col h-full ${
@@ -13,24 +13,21 @@ export const PricingCard = ({ title, price, credits, features, recommended }) =>
         Meilleure Offre
       </div>
     )}
-    <h4 className="text-base font-bold text-slate-800 mb-1">{title}</h4>
-    <div className="flex items-baseline gap-1 mb-6">
-      <span className="text-3xl font-black text-slate-900">{price}</span>
+    <h4 className="text-base font-bold text-slate-800 mb-1 text-center">{title}</h4>
+    <div className="flex items-baseline justify-center gap-1 mb-8">
+      <span className="text-4xl font-black text-slate-900">{price}</span>
       <span className="text-slate-400 font-bold uppercase text-xs tracking-tighter">DA</span>
     </div>
-    <div className="bg-slate-50 rounded-xl p-3.5 mb-8 border border-slate-100">
-      <p className="text-[#1e3a8a] font-bold text-base flex items-center gap-2">
-        <Zap size={18} className="text-emerald-500 fill-emerald-500" />
-        {credits} Crédits d'Étude
-      </p>
+    <div className="bg-indigo-50/50 rounded-2xl p-8 mb-2 border border-indigo-50/80 flex-grow flex items-center justify-center group-hover:bg-indigo-50 transition-colors">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm">
+          <Zap size={24} className="text-emerald-500 fill-emerald-500" />
+        </div>
+        <p className="text-[#1e3a8a] font-black text-2xl">
+          {credits} Crédits
+        </p>
+        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Inclus</p>
+      </div>
     </div>
-    <ul className="space-y-3.5 mb-10 flex-grow">
-      {features.map((f, i) => (
-        <li key={i} className="flex items-start gap-3 text-slate-500 font-semibold text-xs leading-tight">
-          <CheckCircle className="text-[#10b981] mt-0.5 shrink-0" size={16} />
-          {f}
-        </li>
-      ))}
-    </ul>
   </motion.div>
 );

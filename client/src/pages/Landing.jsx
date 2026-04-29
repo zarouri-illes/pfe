@@ -226,12 +226,8 @@ export default function Landing() {
                   price={pack.priceDa}
                   credits={pack.credits}
                   recommended={i === 1}
-                  features={pack.features?.length > 0 ? pack.features : [
-                    "Accès Complet aux Sujets",
-                    "Aide Mentor IA",
-                    "Quiz par Chapitres",
-                    "Suivi de Progression"
-                  ]}
+                  // Features removed to focus on credits
+
                 />
               ))
             ) : (
@@ -241,20 +237,17 @@ export default function Landing() {
                   title="Starter"
                   price="500"
                   credits={100}
-                  features={["Accès Complet aux Sujets", "IA Mentor (Limité)", "Quiz par Chapitres", "Statistiques de Progression"]}
                 />
                 <PricingCard 
                   title="Candidat Passionné"
                   price="1200"
                   credits={350}
                   recommended={true}
-                  features={["Support IA Prioritaire", "Quiz Illimités", "Téléchargement PDF", "Rapports de Performance", "Accès Mentor 24/7"]}
                 />
                 <PricingCard 
                   title="Study Master"
                   price="2500"
                   credits={1000}
-                  features={["Toutes les fonctionnalités", "Accès à Vie", "Sujets Bac Blanc Exclusifs", "Groupes d'Études", "Rentabilité Maximale"]}
                 />
               </>
             )}
@@ -263,13 +256,13 @@ export default function Landing() {
       </section>
       {/* 5. FAQ */}
       <section id="faq" className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-zinc-50 z-[5]">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-3xl mx-auto w-full">
           <div className="text-center mb-16">
             <h2 className="text-[#10b981] font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Assistance</h2>
             <h3 className="text-3xl font-black text-slate-900 tracking-tight">Questions Fréquentes</h3>
           </div>
 
-          <div className="border border-slate-100 rounded-lg px-6 lg:px-10 lg:py-6 bg-white shadow-xl shadow-slate-100/50">
+          <div className="border border-slate-100 rounded-lg px-6 lg:px-10 lg:py-6 bg-white shadow-xl shadow-slate-100/50 w-full overflow-hidden">
             <FAQItem 
               question="C'est quoi les 'Crédits d'Étude' ?"
               answer="Les crédits sont notre monnaie interne. Vous les utilisez pour débloquer des sessions de quiz ou demander des explications à l'IA. Vous ne payez que ce que vous consommez."
@@ -293,7 +286,7 @@ export default function Landing() {
       {/* 6. FOOTER */}
       <footer className="relative w-full min-h-[60vh] flex flex-col justify-center bg-[#111827] text-white pt-20 pb-12 px-6 z-[10]">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
             <div>
               <Link to="/" className="flex items-center gap-2.5 mb-8">
                 <div className="w-10 h-10 rounded-lg bg-[#1e3a8a] flex items-center justify-center font-black text-xl">BP</div>
@@ -320,15 +313,6 @@ export default function Landing() {
                 <li><Link to="/privacy" className="hover:text-emerald-400 transition-colors">Confidentialité</Link></li>
                 <li><Link to="/terms" className="hover:text-emerald-400 transition-colors">Conditions d'Utilisation</Link></li>
               </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-white text-xs mb-8 uppercase tracking-[0.2em]">Mises à Jour</h4>
-              <p className="text-slate-400 text-xs mb-6 font-semibold">Conseils d'études pour 5000+ bacheliers.</p>
-              <div className="bg-slate-800/50 border border-slate-700 p-1.5 rounded-xl flex">
-                <input type="email" placeholder="Email" className="bg-transparent px-3 py-1.5 outline-none flex-grow text-xs font-semibold" />
-                <Button className="bg-[#1e3a8a] hover:bg-[#1e40af] rounded-lg px-3.5 h-8 text-[10px] font-bold">Joindre</Button>
-              </div>
             </div>
           </div>
 

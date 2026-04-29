@@ -10,8 +10,8 @@ export const FAQItem = ({ question, answer }) => {
         onClick={() => setIsOpen(!isOpen)}
         className="w-full py-5 flex items-center justify-between text-left group"
       >
-        <span className="text-base font-bold text-slate-700 group-hover:text-[#1e3a8a] transition-colors">{question}</span>
-        <motion.div animate={{ rotate: isOpen ? 180 : 0 }}>
+        <span className="flex-1 min-w-0 text-base font-bold text-slate-700 group-hover:text-[#1e3a8a] transition-colors break-words">{question}</span>
+        <motion.div animate={{ rotate: isOpen ? 180 : 0 }} className="shrink-0 ml-4">
           <ChevronDown className="text-slate-500" size={20} />
         </motion.div>
       </button>
@@ -23,7 +23,7 @@ export const FAQItem = ({ question, answer }) => {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            <p className="pb-5 text-slate-400 font-semibold text-sm leading-relaxed">{answer}</p>
+            <p className="pb-5 text-slate-400 font-semibold text-sm leading-relaxed w-full break-words">{answer}</p>
           </motion.div>
         )}
       </AnimatePresence>

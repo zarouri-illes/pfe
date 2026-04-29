@@ -191,56 +191,46 @@ const Credits = () => {
                   </div>
                 )}
 
-                <div className="mb-8">
+                <div className="mb-8 text-center">
                   <h3 className="text-2xl font-black text-slate-900 mb-2">{pack.name}</h3>
-                  <div className="flex items-baseline gap-1">
+                  <div className="flex items-baseline justify-center gap-1">
                     <span className="text-4xl font-black text-slate-900">{pack.priceDa}</span>
                     <span className="text-sm font-black text-slate-400 uppercase tracking-widest">DZD</span>
                   </div>
                 </div>
 
-                <div className="p-5 bg-slate-50 rounded-lg mb-8 border border-slate-100/50">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-amber-100 text-amber-600 flex items-center justify-center rounded-xl shadow-sm">
-                      <Coins size={20} />
+                <div className="flex-grow flex flex-col items-center justify-center mb-10 overflow-hidden group">
+                  <div className="relative w-full py-12 bg-indigo-50/50 rounded-2xl border border-indigo-50/80 flex flex-col items-center justify-center transition-all group-hover:bg-indigo-50">
+                    <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                      <Zap size={100} className="fill-indigo-600" />
                     </div>
-                    <div>
-                      <p className="text-2xl font-black text-amber-600 tracking-tight leading-none">{pack.credits}</p>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Crédits</p>
+                    
+                    <div className="w-16 h-16 bg-white text-amber-500 flex items-center justify-center rounded-2xl shadow-sm mb-4 border border-slate-100">
+                      <Coins size={32} />
                     </div>
+                    
+                    <p className="text-5xl font-black text-indigo-600 tracking-tighter mb-1">
+                      {pack.credits}
+                    </p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Credits d'Étude</p>
                   </div>
                 </div>
-
-                <ul className="space-y-4 mb-10 flex-grow">
-                  {[
-                    "Accès complet aux sujets de Bac",
-                    `Mentor IA (${pack.credits > 300 ? 'Illimité' : 'Standard'})`,
-                    "Correction automatique des quiz",
-                    "Téléchargement des corrigés PDF",
-                    "Support Telegram Prioritaire"
-                  ].map((feature, i) => (
-                    <li key={i} className="flex items-center gap-3 text-slate-600 font-semibold text-[13px]">
-                      <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
 
                 <button 
                   onClick={() => handleBuy(pack.id)}
                   disabled={processing !== null}
-                  className={`w-full py-4 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 ${
+                  className={`w-full py-5 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] shadow-lg transition-all active:scale-95 flex items-center justify-center gap-3 ${
                     pack.credits > 500 
-                    ? 'bg-indigo-600 text-white shadow-indigo-200 hover:bg-indigo-700' 
-                    : 'bg-slate-900 text-white shadow-slate-200 hover:bg-slate-800'
+                    ? 'bg-indigo-600 text-white shadow-indigo-100 hover:bg-indigo-700' 
+                    : 'bg-slate-900 text-white shadow-slate-100 hover:bg-slate-800'
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 >
                   {processing === pack.id ? (
                     <Loader2 size={18} className="animate-spin" />
                   ) : (
                     <>
-                      Acheter Maintenant
-                      <CreditCard size={14} className="opacity-60" />
+                      Procéder au Paiement
+                      <CreditCard size={16} className="opacity-60" />
                     </>
                   )}
                 </button>
