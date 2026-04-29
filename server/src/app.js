@@ -26,6 +26,7 @@ app.use(helmet());
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL,
+    'https://bacprephub.vercel.app',
     'https://pfe-delta-coral.vercel.app',
     'http://localhost:5173'
   ].filter(Boolean),
