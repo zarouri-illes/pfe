@@ -76,21 +76,75 @@ const Dashboard = () => {
     return (
       <div className="p-4 md:p-8 lg:p-10 space-y-10">
         {/* Header Skeleton */}
-        <Skeleton className="h-64 md:h-72 w-full rounded-xl" />
+        <Skeleton className="h-64 md:h-72 w-full rounded-2xl" />
         
         {/* Metrics Skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Skeleton className="h-44 rounded-xl" />
-          <Skeleton className="h-44 rounded-xl" />
-          <Skeleton className="h-44 rounded-xl" />
+          <Card className="p-8 border-none bg-white shadow-sm rounded-xl">
+             <div className="flex items-center justify-between mb-6">
+                <Skeleton className="w-12 h-12 rounded-xl" />
+                <Skeleton className="w-20 h-6 rounded-full" />
+             </div>
+             <div className="space-y-2">
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-4 w-32" />
+             </div>
+          </Card>
+          <Card className="p-8 border-none bg-white shadow-sm rounded-xl">
+             <div className="flex items-center justify-between mb-6">
+                <Skeleton className="w-12 h-12 rounded-xl" />
+                <Skeleton className="w-20 h-6 rounded-full" />
+             </div>
+             <div className="space-y-2">
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-4 w-32" />
+             </div>
+          </Card>
+          <Card className="p-8 border-none bg-white shadow-sm rounded-xl md:col-span-2 lg:col-span-1">
+             <div className="flex items-center justify-between mb-6">
+                <Skeleton className="w-12 h-12 rounded-xl" />
+                <Skeleton className="w-20 h-6 rounded-full" />
+             </div>
+             <div className="space-y-2">
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-4 w-32" />
+             </div>
+          </Card>
         </div>
 
         {/* Chart & AI Skeleton */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <Skeleton className="lg:col-span-2 h-[500px] rounded-lg" />
+          <Card className="lg:col-span-2 p-10 border-none bg-white shadow-sm rounded-lg">
+             <div className="flex justify-between mb-10">
+                <div className="space-y-2">
+                   <Skeleton className="h-6 w-48" />
+                   <Skeleton className="h-4 w-64" />
+                </div>
+                <Skeleton className="w-12 h-12 rounded-xl" />
+             </div>
+             <Skeleton className="h-[300px] w-full rounded-lg" />
+          </Card>
+          
           <div className="space-y-8">
-            <Skeleton className="h-56 rounded-lg" />
-            <Skeleton className="h-64 rounded-lg" />
+            <Card className="p-8 border-none bg-slate-900 rounded-lg h-56">
+               <div className="flex items-center gap-3 mb-6">
+                  <Skeleton className="w-10 h-10 rounded-xl bg-slate-800" />
+                  <Skeleton className="h-5 w-32 bg-slate-800" />
+               </div>
+               <div className="space-y-3">
+                  <Skeleton className="h-3 w-full bg-slate-800" />
+                  <Skeleton className="h-3 w-4/5 bg-slate-800" />
+                  <Skeleton className="h-3 w-3/4 bg-slate-800" />
+               </div>
+            </Card>
+            <Card className="p-8 border-none bg-white shadow-sm rounded-lg">
+               <Skeleton className="h-5 w-40 mb-6" />
+               <div className="space-y-4">
+                  <Skeleton className="h-16 w-full rounded-xl" />
+                  <Skeleton className="h-16 w-full rounded-xl" />
+                  <Skeleton className="h-16 w-full rounded-xl" />
+               </div>
+            </Card>
           </div>
         </div>
       </div>
@@ -245,7 +299,7 @@ const Dashboard = () => {
             </div>
 
             <div className="h-[350px] min-h-[350px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                 <BarChart data={chapterStats} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                   <XAxis 

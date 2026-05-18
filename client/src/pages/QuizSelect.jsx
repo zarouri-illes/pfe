@@ -71,15 +71,29 @@ const QuizSelect = () => {
      return (
        <div className="p-4 md:p-8 lg:p-10 space-y-10">
          <div className="text-center space-y-4 max-w-2xl mx-auto">
-            <Skeleton className="h-8 w-48 rounded-full mx-auto" />
+            <Skeleton className="h-6 w-48 rounded-full mx-auto" />
             <Skeleton className="h-12 w-96 rounded-lg mx-auto" />
          </div>
          <div className="flex justify-center gap-3">
-            <Skeleton className="h-12 w-40 rounded-full" />
-            <Skeleton className="h-12 w-40 rounded-full" />
+            {[1,2,3].map(i => <Skeleton key={i} className="h-12 w-40 rounded-full" />)}
          </div>
-         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {[1,2,3,4,5,6].map(i => <Skeleton key={i} className="h-64 rounded-2xl" />)}
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1,2,3,4,5,6].map(i => (
+              <Card key={i} className="border border-slate-100 rounded-2xl p-8 space-y-6 bg-white">
+                 <div className="flex items-center justify-between">
+                    <Skeleton className="w-12 h-12 rounded-lg" />
+                    <Skeleton className="h-8 w-24 rounded-full" />
+                 </div>
+                 <div className="space-y-4">
+                    <Skeleton className="h-8 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                 </div>
+                 <div className="pt-6 border-t border-slate-50 flex items-center gap-3">
+                    <Skeleton className="h-12 flex-grow rounded-lg" />
+                    <Skeleton className="w-12 h-12 rounded-lg" />
+                 </div>
+              </Card>
+            ))}
          </div>
        </div>
      );

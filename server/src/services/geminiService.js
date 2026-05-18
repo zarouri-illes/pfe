@@ -20,11 +20,9 @@ Strict Rules:
 
 /**
  * Gets a chatbot response with full multi-turn conversation history.
- * @param {Array} history - Array of { role: 'user' | 'model', parts: [{ text }] } objects
- * @param {string} newMessage - The latest user message
  */
 const getChatbotResponse = async (history = [], newMessage) => {
-  // Build the full contents array: prior history + new message
+  // Build contents array: history + the new user message
   const contents = [
     ...history,
     { role: 'user', parts: [{ text: newMessage }] }
@@ -33,12 +31,10 @@ const getChatbotResponse = async (history = [], newMessage) => {
   const response = await ai.models.generateContent({
     model: GEMINI_FLASH_MODEL,
     contents,
-    config: {
-      systemInstruction: CHATBOT_SYSTEM_INSTRUCTION
-    }
+    systemInstruction: CHATBOT_SYSTEM_INSTRUCTION
   });
 
-  const text = response?.text;
+  const text = response.text;
   if (typeof text !== 'string' || !text.trim()) {
     throw new Error('Empty or invalid model response');
   }
@@ -83,12 +79,10 @@ const getStudyRecommendations = async (weakestChapters, userId) => {
   const response = await ai.models.generateContent({
     model: GEMINI_FLASH_MODEL,
     contents: prompt,
-    config: {
-      systemInstruction: 'You are a study motivator for Algerian Baccalaureate students. Be concise, professional, and encouraging.'
-    }
+    systemInstruction: 'You are a study motivator for Algerian Baccalaureate students. Be concise, professional, and encouraging.'
   });
 
-  const text = response?.text;
+  const text = response.text;
   if (typeof text !== 'string' || !text.trim()) {
     throw new Error('Empty or invalid model response');
   }

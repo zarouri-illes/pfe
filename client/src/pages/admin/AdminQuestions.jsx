@@ -22,6 +22,8 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import LatexRenderer from '../../components/LatexRenderer';
+import { toast } from 'sonner';
+import Skeleton from '../../components/ui/skeleton';
 
 const AdminQuestions = () => {
   const [questions, setQuestions] = useState([]);
@@ -95,8 +97,8 @@ const AdminQuestions = () => {
     e.preventDefault();
     
     // Validation
-    if (!formData.chapterId) return alert('Veuillez sélectionner un chapitre');
-    if (formData.type === 'mcq' && !formData.correctAnswer) return alert('Veuillez spécifier la réponse correcte');
+    if (!formData.chapterId) return toast.error('Veuillez sélectionner un chapitre');
+    if (formData.type === 'mcq' && !formData.correctAnswer) return toast.error('Veuillez spécifier la réponse correcte');
 
     const data = new FormData();
     data.append('chapterId', formData.chapterId);
@@ -131,9 +133,10 @@ const AdminQuestions = () => {
       setShowModal(false);
       resetForm();
       fetchQuestions();
+      toast.success(editingId ? 'Question mise à jour' : 'Question créée avec succès');
     } catch (error) {
       console.error('Operation failed:', error);
-      alert('Erreur lors de l\'enregistrement');
+      toast.error('Erreur lors de l\'enregistrement');
     } finally {
       setProcessing(false);
     }
@@ -184,8 +187,9 @@ const AdminQuestions = () => {
       setQuestions(prev => prev.filter(q => q.id !== itemToDelete.id));
       setShowDeleteModal(false);
       setItemToDelete(null);
+      toast.success('Question supprimée');
     } catch (error) {
-       alert('Erreur lors de la suppression');
+       toast.error('Erreur lors de la suppression');
     } finally {
       setProcessing(false);
     }
@@ -286,9 +290,40 @@ const AdminQuestions = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                [1,2,3].map(i => (
-                  <tr key={i} className="animate-pulse">
-                    <td colSpan="5" className="px-6 py-8"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                [1,2,3,4,5].map(i => (
+                  <tr key={i}>
+                    <td className="px-6 py-5">
+                       <div className="flex items-start gap- group">
+                          <Skeleton className="w-8 h-8 rounded-lg shrink-0 mr-3" />
+                          <div className="space-y-2 flex-grow">
+                             <Skeleton className="h-4 w-full" />
+                             <Skeleton className="h-3 w-2/3" />
+                          </div>
+                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                       <div className="space-y-2">
+                          <Skeleton className="h-3 w-32" />
+                          <Skeleton className="h-2 w-20" />
+                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                       <div className="flex justify-center">
+                          <Skeleton className="h-6 w-16 rounded-lg" />
+                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                       <div className="flex justify-center">
+                          <Skeleton className="h-5 w-12 rounded-full" />
+                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                       <div className="flex justify-end gap-2">
+                          <Skeleton className="w-9 h-9 rounded-lg" />
+                          <Skeleton className="w-9 h-9 rounded-lg" />
+                          <Skeleton className="w-9 h-9 rounded-lg" />
+                       </div>
+                    </td>
                   </tr>
                 ))
               ) : filteredQuestions.length > 0 ? (

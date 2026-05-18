@@ -204,6 +204,68 @@ const getStudents = asyncHandler(async (req, res) => {
 });
 
 /**
+ * @route   GET /api/admin/students/:id
+ * @desc    Get full details of a specific student
+ */
+const getStudentDetails = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const student = await prisma.user.findUnique({
+    where: { id: parseInt(id, 10), role: 'student' },
+    include: {
+      transactions: {
+        include: { pack: { select: { name: true } } },
+        orderBy: { createdAt: 'desc' },
+      },
+      attempts: {
+        include: { chapter: { select: { name: true, subject: { select: { name: true } } } } },
+        orderBy: { startedAt: 'desc' },
+      },
+      goals: true,
+      activities: {
+        orderBy: { date: 'desc' },
+        take: 30
+      }
+    }
+  });
+
+  if (!student) {
+    return res.status(404).json({ error: 'Étudiant non trouvé' });
+  }
+
+  res.status(200).json({ data: student });
+});
+
+/**
+ * @route   DELETE /api/admin/students/:id
+ * @desc    Permanently delete a student and all their associated data
+ */
+const deleteStudent = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const userId = parseInt(id, 10);
+
+  const student = await prisma.user.findUnique({ where: { id: userId } });
+  if (!student) return res.status(404).json({ error: 'Étudiant non trouvé' });
+
+  // Safety check: Prevent deleting admins via this route
+  if (student.role === 'admin') {
+    return res.status(403).json({ error: 'Les administrateurs ne peuvent pas être supprimés.' });
+  }
+
+  // Delete everything related to the user in a transaction
+  await prisma.$transaction([
+    prisma.activity.deleteMany({ where: { userId } }),
+    prisma.goal.deleteMany({ where: { userId } }),
+    prisma.transaction.deleteMany({ where: { userId } }),
+    // Delete answers associated with the user's attempts
+    prisma.answer.deleteMany({ where: { attempt: { userId } } }),
+    prisma.attempt.deleteMany({ where: { userId } }),
+    prisma.user.delete({ where: { id: userId } }),
+  ]);
+
+  res.status(200).json({ message: 'Étudiant supprimé avec succès' });
+});
+
+/**
  * @route   GET /api/admin/credit-packs
  * @desc    List all credit packs (active and inactive)
  */
@@ -532,5 +594,7 @@ module.exports = {
   deleteCreditPack,
   getAllTransactions,
   getStudents,
+  getStudentDetails,
+  deleteStudent,
   getExamFile
 };

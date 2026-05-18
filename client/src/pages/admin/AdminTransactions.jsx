@@ -21,6 +21,7 @@ import {
 import { Card, CardContent } from '../../components/ui/card';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import Skeleton from '../../components/ui/skeleton';
 
 /** Backend persists Chargily-paid rows as COMPLETED; keep filters aligned. */
 const isSuccessfulTx = (status) => {
@@ -214,8 +215,40 @@ const AdminTransactions = () => {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 [1,2,3,4,5].map(i => (
-                  <tr key={i} className="animate-pulse">
-                    <td colSpan="5" className="px-6 py-6"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                  <tr key={i}>
+                    <td className="px-6 py-5">
+                       <div className="flex items-center gap-3">
+                          <Skeleton className="w-9 h-9 rounded-lg" />
+                          <div className="space-y-2 flex-grow">
+                             <Skeleton className="h-4 w-32" />
+                             <Skeleton className="h-3 w-40" />
+                          </div>
+                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                       <div className="flex items-center gap-2">
+                          <Skeleton className="w-4 h-4 rounded" />
+                          <Skeleton className="h-4 w-24" />
+                          <Skeleton className="h-4 w-8 rounded" />
+                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                       <div className="space-y-1">
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-3 w-16" />
+                       </div>
+                    </td>
+                    <td className="px-6 py-5 text-center">
+                       <div className="flex justify-center">
+                          <Skeleton className="h-6 w-20 rounded-full" />
+                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                       <div className="flex flex-col items-end space-y-1">
+                          <Skeleton className="h-3 w-20" />
+                          <Skeleton className="h-2 w-16" />
+                       </div>
+                    </td>
                   </tr>
                 ))
               ) : filteredTransactions.length > 0 ? (

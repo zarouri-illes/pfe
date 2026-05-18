@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Skeleton from '../components/ui/skeleton';
+import { Card } from '../components/ui/card';
 
 const Credits = () => {
   const { user, isAuthenticated } = useAuth();
@@ -26,12 +27,13 @@ const Credits = () => {
   useEffect(() => {
     fetchPacks();
     if (isAuthenticated) fetchHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   const fetchPacks = async () => {
     try {
       const res = await api('/api/credits/packs');
-      setPacks(res.data);
+      setPacks(res.data || res);
     } catch (error) {
       console.error('Error fetching packs:', error);
     } finally {
@@ -157,7 +159,20 @@ const Credits = () => {
         {/* Packs Grid */}
         {loading ? (
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {[1,2,3].map(i => <Skeleton key={i} className="h-[500px] w-full rounded-xl" />)}
+            {[1,2,3].map(i => (
+              <Card key={i} className="p-8 border-2 border-slate-100 rounded-xl space-y-8 flex flex-col bg-white">
+                 <div className="space-y-4 text-center">
+                    <Skeleton className="h-8 w-32 mx-auto" />
+                    <Skeleton className="h-10 w-24 mx-auto" />
+                 </div>
+                 <div className="flex-grow py-12 bg-slate-50 rounded-2xl space-y-4 flex flex-col items-center justify-center">
+                    <Skeleton className="w-16 h-16 rounded-2xl" />
+                    <Skeleton className="h-10 w-20" />
+                    <Skeleton className="h-3 w-24" />
+                 </div>
+                 <Skeleton className="h-14 w-full rounded-xl mt-auto" />
+              </Card>
+            ))}
           </div>
         ) : (
           <motion.div 
@@ -251,9 +266,9 @@ const Credits = () => {
                Support Client 24/7
             </div>
           </div>
-          <div className="flex gap-4">
-               <img src="https://chargily.com/wp-content/uploads/2022/10/edahabia-badge.png" alt="Edahabia" className="h-8 grayscale opacity-70 hover:grayscale-0 transition-all cursor-default" />
-               <img src="https://chargily.com/wp-content/uploads/2022/10/cib-logo.png" alt="CIB" className="h-8 grayscale opacity-70 hover:grayscale-0 transition-all cursor-default" />
+          <div className="flex gap-4 opacity-50 grayscale hover:opacity-100 transition-all">
+               <div className="h-8 w-24 bg-slate-100 rounded-md flex items-center justify-center text-[8px] font-bold text-slate-400 border border-slate-200">EDAHABIA</div>
+               <div className="h-8 w-24 bg-slate-100 rounded-md flex items-center justify-center text-[8px] font-bold text-slate-400 border border-slate-200">CIB</div>
           </div>
         </div>
 

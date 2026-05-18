@@ -30,6 +30,7 @@ import {
   Pie
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import Skeleton from '../../components/ui/skeleton';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -51,17 +52,54 @@ const AdminDashboard = () => {
   }, []);
 
   if (loading) return (
-    <div className="space-y-6 animate-pulse">
-      <div className="flex justify-between items-center mb-8">
-        <div className="h-8 w-48 bg-slate-200 rounded-lg"></div>
-        <div className="h-10 w-32 bg-slate-200 rounded-lg"></div>
+    <div className="space-y-8 pb-10">
+      <div className="flex justify-between items-center border-b border-slate-200 pb-6">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48 rounded-lg" />
+          <Skeleton className="h-4 w-32 rounded-lg" />
+        </div>
+        <Skeleton className="h-10 w-32 rounded-lg" />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-slate-100 rounded-xl border border-slate-200"></div>)}
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[1, 2, 3, 4].map(i => (
+          <Card key={i} className="border border-slate-200/60 shadow-sm rounded-xl bg-white p-5 flex items-center gap-4">
+             <Skeleton className="w-12 h-12 rounded-xl shrink-0" />
+             <div className="space-y-2 flex-grow">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-6 w-24" />
+             </div>
+          </Card>
+        ))}
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-10">
-        <div className="lg:col-span-2 h-96 bg-slate-100 rounded-xl"></div>
-        <div className="h-96 bg-slate-100 rounded-xl"></div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 border border-slate-200/60 shadow-sm rounded-xl bg-white">
+           <div className="p-6 border-b border-slate-100 flex justify-between">
+              <div className="space-y-2">
+                 <Skeleton className="h-5 w-40" />
+                 <Skeleton className="h-3 w-64" />
+              </div>
+           </div>
+           <div className="p-6">
+              <Skeleton className="h-[320px] w-full rounded-lg" />
+           </div>
+        </Card>
+        <Card className="border border-slate-200/60 shadow-sm rounded-xl bg-white p-6 space-y-6">
+           <div className="space-y-2">
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-3 w-32" />
+           </div>
+           <div className="space-y-4">
+              {[1,2,3,4].map(i => (
+                <div key={i} className="space-y-2">
+                   <div className="flex justify-between"><Skeleton className="h-3 w-24"/><Skeleton className="h-3 w-8"/></div>
+                   <Skeleton className="h-2 w-full rounded-full" />
+                </div>
+              ))}
+           </div>
+           <Skeleton className="h-24 w-full rounded-xl mt-6" />
+        </Card>
       </div>
     </div>
   );
@@ -131,9 +169,9 @@ const AdminDashboard = () => {
             <button className="text-slate-400 hover:text-slate-600"><MoreVertical size={16} /></button>
           </CardHeader>
           <CardContent className="p-6">
-            <div className="h-[320px] w-full relative min-h-[320px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats?.revenueHistory?.length > 0 ? stats.revenueHistory : [{name: 'Empty', amountDa: 0}]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <div className="h-[320px] w-full relative min-h-[320px]">
+                <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
+                  <AreaChart data={stats?.revenueHistory?.length > 0 ? stats.revenueHistory : [{name: 'Empty', amountDa: 0}]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
@@ -207,7 +245,7 @@ const AdminDashboard = () => {
             <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
           </CardHeader>
           <CardContent className="h-[250px] relative min-h-[250px]">
-             <ResponsiveContainer width="100%" height="100%">
+             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                <BarChart data={stats?.activityHistory || []}>
                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontStyle: 'bold' }} hide={!stats?.activityHistory || stats?.activityHistory?.length === 0} />

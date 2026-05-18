@@ -42,7 +42,11 @@ const verifyToken = asyncHandler(async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.error('Auth Middleware Error:', error);
+    // TokenExpiredError is a normal, expected situation (user's session ended).
+    // Only log unexpected errors (e.g., invalid secret, malformed token).
+    if (error.name !== 'TokenExpiredError') {
+      console.error('Auth Middleware Error:', error);
+    }
     return res.status(401).json({ error: 'Not authorized, token failed' });
   }
 });

@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import PDFViewer from '../../components/admin/PDFViewer';
+import { toast } from 'sonner';
+import Skeleton from '../../components/ui/skeleton';
 
 const AdminExams = () => {
   const [exams, setExams] = useState([]);
@@ -91,7 +93,7 @@ const AdminExams = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!formData.file) return alert('Veuillez sélectionner un fichier PDF');
+    if (!formData.file) return toast.error('Veuillez sélectionner un fichier PDF');
 
     const data = new FormData();
     data.append('title', formData.title);
@@ -118,10 +120,11 @@ const AdminExams = () => {
         semester: '1',
         file: null
       });
+      toast.success('Sujet ajouté avec succès');
       fetchExams();
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Erreur lors de l\'upload');
+      toast.error('Erreur lors de l\'upload');
     } finally {
       setUploading(false);
     }
@@ -139,9 +142,10 @@ const AdminExams = () => {
       setExams(prev => prev.filter(ex => ex.id !== examToDelete.id));
       setShowDeleteModal(false);
       setExamToDelete(null);
+      toast.success('Examen supprimé avec succès');
     } catch (error) {
       console.error('Delete failed:', error);
-      alert('Erreur lors de la suppression');
+      toast.error('Erreur lors de la suppression');
     }
   };
 
@@ -300,9 +304,32 @@ const AdminExams = () => {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {loading ? (
-                [1,2,3].map(i => (
-                  <tr key={i} className="animate-pulse">
-                    <td colSpan="5" className="px-6 py-8"><div className="h-4 bg-slate-100 rounded w-full"></div></td>
+                [1,2,3,4,5].map(i => (
+                  <tr key={i}>
+                    <td className="px-6 py-5">
+                       <div className="flex items-center gap-3">
+                          <Skeleton className="w-10 h-10 rounded-lg" />
+                          <div className="space-y-2">
+                             <Skeleton className="h-4 w-48" />
+                             <Skeleton className="h-3 w-32" />
+                          </div>
+                       </div>
+                    </td>
+                    <td className="px-6 py-5">
+                       <Skeleton className="h-6 w-16 rounded-full" />
+                    </td>
+                    <td className="px-6 py-5">
+                       <Skeleton className="h-4 w-24" />
+                    </td>
+                    <td className="px-6 py-5">
+                       <Skeleton className="h-4 w-24" />
+                    </td>
+                    <td className="px-6 py-5">
+                       <div className="flex justify-end gap-2">
+                          <Skeleton className="w-9 h-9 rounded-lg" />
+                          <Skeleton className="w-9 h-9 rounded-lg" />
+                       </div>
+                    </td>
                   </tr>
                 ))
               ) : filteredExams.length > 0 ? (

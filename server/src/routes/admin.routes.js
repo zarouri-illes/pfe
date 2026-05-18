@@ -7,6 +7,8 @@ const {
   getAllCreditPacks, createCreditPack, updateCreditPack, deleteCreditPack,
   getAllTransactions,
   getStudents,
+  getStudentDetails,
+  deleteStudent,
   getExamFile
 } = require('../controllers/admin.controller');
 const { verifyToken } = require('../middleware/auth');
@@ -85,5 +87,7 @@ router.get('/transactions', getAllTransactions);
 
 // === STUDENTS ===
 router.get('/students', getStudents);
+router.get('/students/:id', getStudentDetails);
+router.delete('/students/:id', deleteStudent);
 
 module.exports = router;

@@ -178,9 +178,23 @@ const ExamLibrary = () => {
          {loading ? (
            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1,2,3,4,5,6].map(i => (
-                <div key={i} className="flex flex-col gap-4">
-                  <Skeleton className="h-48 w-full rounded-xl" />
-                </div>
+                <Card key={i} className="border border-slate-50 bg-white p-6 space-y-4 rounded-xl shadow-sm">
+                   <div className="flex items-center justify-between">
+                      <Skeleton className="w-10 h-10 rounded-xl" />
+                      <Skeleton className="h-5 w-16 rounded-full" />
+                   </div>
+                   <div className="space-y-2">
+                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
+                   </div>
+                   <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
+                      <Skeleton className="h-3 w-20" />
+                      <div className="flex gap-2">
+                         <Skeleton className="w-8 h-8 rounded-lg" />
+                         <Skeleton className="w-8 h-8 rounded-lg" />
+                      </div>
+                   </div>
+                </Card>
               ))}
            </div>
          ) : exams.length > 0 ? (

@@ -15,6 +15,8 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
+import { toast } from 'sonner';
+import Skeleton from '../../components/ui/skeleton';
 
 const AdminPacks = () => {
   const [packs, setPacks] = useState([]);
@@ -79,9 +81,10 @@ const AdminPacks = () => {
       setShowModal(false);
       resetForm();
       fetchPacks();
+      toast.success(isEditing ? 'Pack mis à jour' : 'Pack créé avec succès');
     } catch (error) {
       console.error('Save failed:', error);
-      alert('Erreur lors de la sauvegarde');
+      toast.error('Erreur lors de la sauvegarde');
     }
   };
 
@@ -98,13 +101,14 @@ const AdminPacks = () => {
       setPacks(prev => prev.filter(p => p.id !== packToDelete.id));
       setShowDeleteModal(false);
       setPackToDelete(null);
+      toast.success('Pack supprimé avec succès');
     } catch (error) {
        // Specifically handle the 409 Conflict (used for foreign key violations)
        if (error.status === 409 || (error.message && error.message.includes('Désactivez'))) {
-         alert(error.message || 'Impossible de supprimer un pack avec historique. Désactivez-le plutôt.');
+         toast.error(error.message || 'Impossible de supprimer un pack avec historique. Désactivez-le plutôt.');
        } else {
          console.error('Delete failed:', error);
-         alert('Erreur lors de la suppression');
+         toast.error('Erreur lors de la suppression');
        }
     } finally {
       setProcessing(false);
@@ -148,8 +152,29 @@ const AdminPacks = () => {
 
       {/* Packs Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
-           {[1,2,3].map(i => <div key={i} className="h-64 bg-slate-100 rounded-lg"></div>)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+           {[1,2,3].map(i => (
+             <Card key={i} className="border border-slate-100 bg-white p-6 space-y-6">
+                <div className="flex justify-between items-start">
+                   <Skeleton className="w-12 h-12 rounded-lg" />
+                   <div className="flex gap-1">
+                      <Skeleton className="w-8 h-8 rounded-lg" />
+                      <Skeleton className="w-8 h-8 rounded-lg" />
+                   </div>
+                </div>
+                <div className="space-y-4">
+                   <div className="space-y-2">
+                      <Skeleton className="h-6 w-32" />
+                      <Skeleton className="h-4 w-24" />
+                   </div>
+                   <Skeleton className="h-10 w-28" />
+                   <div className="pt-4 border-t border-slate-50 flex justify-between items-center">
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                      <Skeleton className="h-3 w-12" />
+                   </div>
+                </div>
+             </Card>
+           ))}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
