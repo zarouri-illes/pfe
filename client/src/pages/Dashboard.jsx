@@ -32,20 +32,45 @@ import {
 const Dashboard = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchDashboard = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await api('/api/dashboard');
+      setData(res.data || res);
+    } catch (err) {
+      console.error('Error fetching dashboard:', err);
+      setError('Impossible de charger le tableau de bord. Vérifiez votre connexion.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const res = await api('/api/dashboard');
-        setData(res.data || res);
-      } catch (error) {
-        console.error('Error fetching dashboard:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchDashboard();
   }, []);
+
+  if (error) {
+    return (
+      <div className="p-4 md:p-8 flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
+        <div className="w-16 h-16 bg-rose-50 text-rose-500 flex items-center justify-center rounded-2xl">
+          <BookOpen size={32} />
+        </div>
+        <div>
+          <h2 className="text-xl font-black text-slate-900">Erreur de Chargement</h2>
+          <p className="text-slate-500 font-semibold mt-1">{error}</p>
+        </div>
+        <button
+          onClick={fetchDashboard}
+          className="px-8 py-3 bg-indigo-600 text-white rounded-xl font-black text-sm uppercase tracking-widest hover:bg-indigo-700 transition-all"
+        >
+          Réessayer
+        </button>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -72,7 +97,7 @@ const Dashboard = () => {
     );
   }
 
-  const { daysUntilBac, recentAttempts, chapterStats, weakestChapters, recommendations } = data;
+  const { daysUntilBac, recentAttempts, chapterStats, weakestChapters, recommendations, totalAttempts } = data;
 
   return (
     <motion.div 
@@ -194,8 +219,8 @@ const Dashboard = () => {
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Activité</span>
             </div>
             <div className="space-y-1">
-                <p className="text-3xl font-black text-slate-900">{recentAttempts.length}</p>
-                <p className="text-sm font-bold text-slate-400">Quiz complétés</p>
+                <p className="text-3xl font-black text-slate-900">{totalAttempts ?? recentAttempts.length}</p>
+                <p className="text-sm font-bold text-slate-400">Quiz complétés (total)</p>
             </div>
           </Card>
         </motion.div>

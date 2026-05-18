@@ -20,8 +20,10 @@ import LatexRenderer from './LatexRenderer';
 export const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Bonjour ! Je suis votre mentor IA. Je peux vous aider à comprendre des concepts complexes en Maths, Physique ou Philo. Comment puis-je vous aider aujourd'hui ?" }
+    { role: 'assistant', content: "Bonjour ! Je suis votre mentor IA. Je peux vous aider à comprendre des concepts complexes en Maths ou Physique pour votre Bac. Comment puis-je vous aider aujourd'hui ?" }
   ]);
+  // Conversation history in Gemini's native multi-turn format
+  const [history, setHistory] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
@@ -39,6 +41,7 @@ export const ChatbotWidget = () => {
     if (!input.trim() || loading || !isVisible) return;
 
     const userMessage = { role: 'user', content: input };
+    const currentInput = input;
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setLoading(true);
@@ -46,12 +49,18 @@ export const ChatbotWidget = () => {
     try {
       const res = await api('/api/chatbot', {
         method: 'POST',
-        body: JSON.stringify({ message: input })
+        body: JSON.stringify({ message: currentInput, history })
       });
 
-      // res is { data: { text: "...", creditBalance: ... } }
       const answer = res?.data?.text || "Désolé, je n'ai pas pu obtenir de réponse.";
       setMessages(prev => [...prev, { role: 'assistant', content: answer }]);
+
+      // Append both sides to history for next turn
+      setHistory(prev => [
+        ...prev,
+        { role: 'user', parts: [{ text: currentInput }] },
+        { role: 'model', parts: [{ text: answer }] }
+      ]);
     } catch (error) {
       console.error('Chatbot error:', error);
       setMessages(prev => [...prev, { role: 'assistant', content: "Désolé, j'ai rencontré une petite erreur technique. Pouvez-vous reformuler votre question ?" }]);

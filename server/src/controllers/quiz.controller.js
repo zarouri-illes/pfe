@@ -107,11 +107,10 @@ const submitQuiz = asyncHandler(async (req, res) => {
       where: {
         userId_date: {
           userId: req.user.id,
-          // Use local date at UTC midnight to avoid timezone day-boundary bugs
+          // Use UTC midnight to avoid day-boundary bugs across timezones
           date: (() => {
             const d = new Date();
-            d.setHours(0, 0, 0, 0);
-            return d;
+            return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
           })(),
         },
       },
@@ -120,8 +119,7 @@ const submitQuiz = asyncHandler(async (req, res) => {
         userId: req.user.id,
         date: (() => {
           const d = new Date();
-          d.setHours(0, 0, 0, 0);
-          return d;
+          return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
         })(),
         count: 1,
       },

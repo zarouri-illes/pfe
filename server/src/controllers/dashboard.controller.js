@@ -27,7 +27,7 @@ const getDashboardData = asyncHandler(async (req, res) => {
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-  const [attemptsData, statsRows, subjectStatsRows, activities, goalsCount, completedGoalsCount] =
+  const [attemptsData, statsRows, subjectStatsRows, activities, goalsCount, completedGoalsCount, totalAttempts] =
     await Promise.all([
       // 3. Recent Attempts (Last 5 completed)
       prisma.attempt.findMany({
@@ -78,6 +78,9 @@ const getDashboardData = asyncHandler(async (req, res) => {
 
       // 8b. Completed Goals
       prisma.goal.count({ where: { userId, isCompleted: true } }),
+
+      // 8c. All-time total submitted attempts
+      prisma.attempt.count({ where: { userId, submittedAt: { not: null } } }),
     ]);
 
   const recentAttempts = attemptsData.map(a => ({
@@ -107,11 +110,11 @@ const getDashboardData = asyncHandler(async (req, res) => {
     averagePercentage: Math.round(Number(row.averagePercentage))
   }));
 
-  // 9. AI Recommendations
+  // 9. AI Recommendations (cached per user — does not block each dashboard load)
   let recommendations = "Start practicing to get personalized AI recommendations!";
   if (chapterStats.length > 0) {
     try {
-      recommendations = await getStudyRecommendations(weakestChapters);
+      recommendations = await getStudyRecommendations(weakestChapters, userId);
     } catch (error) {
       console.error('Failed to fetch AI recommendations:', error);
       recommendations = "Focus on your weakest chapters to improve your scores.";
@@ -135,7 +138,8 @@ const getDashboardData = asyncHandler(async (req, res) => {
         total: goalsCount,
         completed: completedGoalsCount
       },
-      recommendations
+      recommendations,
+      totalAttempts
     }
   });
 });

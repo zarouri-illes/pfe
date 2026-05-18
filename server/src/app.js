@@ -22,14 +22,15 @@ const app = express();
 // 1. Security Headers
 app.use(helmet());
 
-// 2. CORS
+// 2. CORS — configure via ALLOWED_ORIGINS env var (comma-separated list).
+// Falls back to localhost for local development.
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL,
-    'https://bacprephub.vercel.app',
-    'https://pfe-delta-coral.vercel.app',
-    'http://localhost:5173'
-  ].filter(Boolean),
+  origin: allowedOrigins,
   credentials: true
 }));
 

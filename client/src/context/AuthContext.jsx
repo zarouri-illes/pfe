@@ -6,10 +6,12 @@ export const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [creditBalance, setCreditBalance] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   const isAuthenticated = !!user;
+
+  // Derived value — single source of truth from the user object
+  const creditBalance = user?.creditBalance ?? 0;
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -20,7 +22,6 @@ export function AuthProvider({ children }) {
       try {
         const res = await api('/api/auth/me');
         setUser(res.data);
-        setCreditBalance(res.data.creditBalance);
       } catch {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
@@ -37,7 +38,6 @@ export function AuthProvider({ children }) {
     // Note: we do NOT persist the user object in localStorage — it is re-fetched from /api/auth/me
     setToken(newToken);
     setUser(userData);
-    setCreditBalance(userData.creditBalance);
   };
 
   const logout = () => {
@@ -45,11 +45,14 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user');
     setToken(null);
     setUser(null);
-    setCreditBalance(0);
   };
 
+  /**
+   * Optimistically updates the credit balance in the user object.
+   * Called after a successful credit transaction or chatbot use.
+   */
   const updateCredits = (newBalance) => {
-    setCreditBalance(newBalance);
+    setUser(prev => prev ? { ...prev, creditBalance: newBalance } : prev);
   };
 
   return (
