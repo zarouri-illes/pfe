@@ -22,16 +22,29 @@ const app = express();
 // 1. Security Headers
 app.use(helmet());
 
-// 2. CORS — configure via ALLOWED_ORIGINS env var (comma-separated list).
-// Falls back to localhost for local development.
-const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
+// 2. CORS — Dynamic and robust configuration
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,https://bacprephub.vercel.app')
   .split(',')
-  .map(o => o.trim())
+  .map(o => o.trim().replace(/\/$/, '')) // Remove trailing slashes
   .filter(Boolean);
 
+if (process.env.NODE_ENV !== 'production') {
+  console.log('CORS Allowed Origins:', allowedOrigins);
+}
+
 app.use(cors({
-  origin: allowedOrigins,
-  credentials: true
+  origin: (origin, callback) => {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
 }));
 
 // 3. Rate Limiting (Global)
