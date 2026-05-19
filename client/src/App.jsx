@@ -22,6 +22,7 @@ import QuizResults from './pages/QuizResults';
 import { ChatbotWidget } from './components/ChatbotWidget';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFail from './pages/PaymentFail';
+import { SmoothScroll } from './components/SmoothScroll';
 
 function NotFound() {
   return (
@@ -57,46 +58,48 @@ function InsufficientCreditsHandler() {
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50 font-sans">
-        <InsufficientCreditsHandler />
-        <Routes>
-          {/* Public Routes with Navbar */}
-          <Route element={<UserLayout />}>
-            <Route path="/" element={<Landing />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-          
-          {/* Student Portal (With Sidebar) */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<StudentLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/exams" element={<ExamLibrary />} />
-              <Route path="/quiz" element={<QuizSelect />} />
-              <Route path="/quiz/:attemptId" element={<QuizActive />} />
-              <Route path="/quiz/:attemptId/results" element={<QuizResults />} />
-              <Route path="/credits" element={<Credits />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              <Route path="/payment-fail" element={<PaymentFail />} />
+      <SmoothScroll>
+        <div className="min-h-screen bg-gray-50 font-sans">
+          <InsufficientCreditsHandler />
+          <Routes>
+            {/* Public Routes with Navbar */}
+            <Route element={<UserLayout />}>
+              <Route path="/" element={<Landing />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="*" element={<NotFound />} />
             </Route>
-          </Route>
-
-          {/* Admin Routes (With Sidebar) */}
-          <Route element={<ProtectedRoute adminOnly />}>
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Navigate to="/admin/dashboard" replace />} />
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="exams" element={<AdminExams />} />
-              <Route path="questions" element={<AdminQuestions />} />
-              <Route path="packs" element={<AdminPacks />} />
-              <Route path="transactions" element={<AdminTransactions />} />
-              <Route path="students" element={<AdminStudents />} />
+            
+            {/* Student Portal (With Sidebar) */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<StudentLayout />}>
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/exams" element={<ExamLibrary />} />
+                <Route path="/quiz" element={<QuizSelect />} />
+                <Route path="/quiz/:attemptId" element={<QuizActive />} />
+                <Route path="/quiz/:attemptId/results" element={<QuizResults />} />
+                <Route path="/credits" element={<Credits />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-fail" element={<PaymentFail />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
-        <ChatbotWidget />
-      </div>
+  
+            {/* Admin Routes (With Sidebar) */}
+            <Route element={<ProtectedRoute adminOnly />}>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="exams" element={<AdminExams />} />
+                <Route path="questions" element={<AdminQuestions />} />
+                <Route path="packs" element={<AdminPacks />} />
+                <Route path="transactions" element={<AdminTransactions />} />
+                <Route path="students" element={<AdminStudents />} />
+              </Route>
+            </Route>
+          </Routes>
+          <ChatbotWidget />
+        </div>
+      </SmoothScroll>
     </BrowserRouter>
   );
 }

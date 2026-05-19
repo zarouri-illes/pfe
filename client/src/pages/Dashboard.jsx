@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { 
   Target, 
@@ -41,8 +42,8 @@ const Dashboard = () => {
       const res = await api('/api/dashboard');
       setData(res.data || res);
     } catch (err) {
-      console.error('Error fetching dashboard:', err);
-      setError('Impossible de charger le tableau de bord. Vérifiez votre connexion.');
+      toast.error('Impossible de charger le tableau de bord.');
+      setError('Impossible de charger le tableau de bord.');
     } finally {
       setLoading(false);
     }

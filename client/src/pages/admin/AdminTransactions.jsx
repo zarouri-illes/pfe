@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import api from '../../api/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -45,7 +46,7 @@ const AdminTransactions = () => {
       const res = await api('/api/admin/transactions');
       setTransactions(res.data || []);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      toast.error('Erreur lors du chargement des transactions.');
     } finally {
       setLoading(false);
     }

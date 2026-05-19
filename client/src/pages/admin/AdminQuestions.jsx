@@ -66,7 +66,7 @@ const AdminQuestions = () => {
       const res = await api('/api/subjects');
       setSubjects(res.data || res);
     } catch (error) {
-      console.error('Error fetching subjects:', error);
+      toast.error('Erreur lors du chargement des matières.');
     }
   };
 
@@ -76,7 +76,7 @@ const AdminQuestions = () => {
       const res = await api('/api/admin/questions');
       setQuestions(res.data || res);
     } catch (error) {
-      console.error('Error fetching questions:', error);
+      toast.error('Erreur lors du chargement des questions.');
     } finally {
       setLoading(false);
     }

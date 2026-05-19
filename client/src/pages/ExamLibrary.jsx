@@ -15,6 +15,7 @@ import {
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import Skeleton from '../components/ui/skeleton';
+import { toast } from 'sonner';
 
 const ExamLibrary = () => {
   const [exams, setExams] = useState([]);
@@ -43,7 +44,7 @@ const ExamLibrary = () => {
       const res = await api('/api/subjects');
       setSubjects(res.data || res);
     } catch (error) {
-      console.error('Error fetching subjects:', error);
+      toast.error('Erreur lors du chargement des matières.');
     }
   };
 
@@ -59,7 +60,7 @@ const ExamLibrary = () => {
       const res = await api(`/api/exams?${params.toString()}`);
       setExams(res.data || res);
     } catch (error) {
-      console.error('Error fetching exams:', error);
+      toast.error('Erreur lors du chargement des examens.');
     } finally {
       setLoading(false);
     }

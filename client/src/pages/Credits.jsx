@@ -35,7 +35,7 @@ const Credits = () => {
       const res = await api('/api/credits/packs');
       setPacks(res.data || res);
     } catch (error) {
-      console.error('Error fetching packs:', error);
+      toast.error('Impossible de charger les packs.');
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ const Credits = () => {
       const res = await api('/api/credits/history');
       setHistory(res.data);
     } catch (error) {
-       console.error('Error fetching history:', error);
+       toast.error("Impossible de charger l'historique.");
     }
   };
 

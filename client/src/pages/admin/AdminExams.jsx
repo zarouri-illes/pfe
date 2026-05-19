@@ -71,7 +71,7 @@ const AdminExams = () => {
       console.log('DEBUG: Exams:', res.data);
       setPagination(prev => ({ ...prev, totalPages: res.pagination.totalPages }));
     } catch (error) {
-      console.error('Error fetching exams:', error);
+      toast.error('Erreur lors du chargement des examens.');
     } finally {
       setLoading(false);
     }
@@ -83,7 +83,7 @@ const AdminExams = () => {
       setSubjects(res.data || res);
       console.log('DEBUG: Subjects:', res.data || res);
     } catch (error) {
-      console.error('Error fetching subjects:', error);
+      toast.error('Erreur lors du chargement des matières.');
     }
   };
 

@@ -1,28 +1,30 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { User, Mail, Lock, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import api from '../api/client';
+import { toast } from 'sonner';
 
 export default function Register() {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
-  const [error, setError] = useState('');
+  
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
     if (formData.password !== formData.confirmPassword) {
-      return setError('Les mots de passe ne correspondent pas.');
+      return toast.error('Les mots de passe ne correspondent pas.');
     }
 
     setIsLoading(true);
@@ -37,9 +39,11 @@ export default function Register() {
         })
       });
 
-      navigate('/login');
+      login(res.data.token, res.data.user);
+      toast.success('Bienvenue sur BacPrep Hub !');
+      navigate('/dashboard');
     } catch (err) {
-      setError(err.message || "Une erreur est survenue lors de l'inscription.");
+      toast.error(err.message || "Une erreur est survenue lors de l'inscription.");
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +54,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center pt-24 px-6 lg:px-8 font-inter">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-24 px-6 lg:px-8 font-inter">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <Link to="/" className="flex items-center justify-center gap-2 mb-6 cursor-pointer">
            <div className="w-10 h-10 rounded-lg bg-[#1e3a8a] flex items-center justify-center font-black text-xl text-white">BP</div>
@@ -70,12 +74,7 @@ export default function Register() {
         className="mt-8 sm:mx-auto sm:w-full sm:max-w-md"
       >
         <div className="bg-white py-8 px-6 shadow-xl border border-slate-100 rounded-lg sm:px-10">
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {error && (
-              <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm font-bold border border-red-100 text-center">
-                {error}
-              </div>
-            )}
+          <form className="space-y-4" onSubmit={handleSubmit}>
             
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">Nom complet</label>
@@ -158,16 +157,16 @@ export default function Register() {
                 {isLoading ? "Création en cours..." : "Créer mon compte"}
               </Button>
             </div>
-          </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm font-semibold text-slate-500">
-              Vous avez déjà un compte ?{' '}
-              <Link to="/login" className="font-bold text-[#10b981] hover:text-emerald-500 transition-colors">
-                Connectez-vous
-              </Link>
-            </p>
-          </div>
+            <div className="mt-4 text-center">
+              <p className="text-sm font-semibold text-slate-500">
+                Vous avez déjà un compte ?{' '}
+                <Link to="/login" className="font-bold text-[#10b981] hover:text-emerald-500 transition-colors">
+                  Connectez-vous
+                </Link>
+              </p>
+            </div>
+          </form>
         </div>
       </motion.div>
     </div>

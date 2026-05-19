@@ -87,7 +87,7 @@ const StudentLayout = () => {
            </div>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+        <nav data-lenis-prevent className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
           <p className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 mt-2">Menu Révision</p>
           {navItems.map((item) => (
             <NavLink

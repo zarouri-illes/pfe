@@ -6,6 +6,7 @@ import { Mail, Lock } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import api from '../api/client';
+import { toast } from 'sonner';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -16,12 +17,10 @@ export default function Login() {
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setIsLoading(true);
 
     try {
@@ -34,6 +33,7 @@ export default function Login() {
       });
       
       login(res.data.token, res.data.user);
+      toast.success(`Bienvenue, ${res.data.user.name} !`);
 
       if (res.data.user.role === 'admin') {
         navigate('/admin/dashboard');
@@ -45,7 +45,7 @@ export default function Login() {
         navigate(dest);
       }
     } catch (err) {
-      setError(err.message || 'Identifiants invalides.');
+      toast.error(err.message || 'Identifiants invalides.');
     } finally {
       setIsLoading(false);
     }
@@ -77,11 +77,6 @@ export default function Login() {
       >
         <div className="bg-white py-8 px-6 shadow-xl border border-slate-100 rounded-lg sm:px-10">
           <form className="space-y-5" onSubmit={handleSubmit}>
-            {error && (
-              <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm font-bold border border-red-100 text-center">
-                {error}
-              </div>
-            )}
 
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1.5">Adresse Email</label>
@@ -116,9 +111,6 @@ export default function Login() {
                   className="pl-10 h-12 bg-slate-50 border-slate-200 text-sm font-semibold focus-visible:ring-[#1e3a8a]"
                   placeholder="••••••••"
                 />
-              </div>
-              <div className="text-right mt-1.5">
-                {/* Password reset is not yet implemented */}
               </div>
             </div>
 

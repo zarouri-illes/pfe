@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import api from '../../api/client';
+import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { 
   Users, 
@@ -43,7 +44,7 @@ const AdminDashboard = () => {
         const res = await api('/api/admin/stats');
         setStats(res.data);
       } catch (error) {
-        console.error('Error fetching admin stats:', error);
+        toast.error('Impossible de charger les statistiques.');
       } finally {
         setTimeout(() => setLoading(false), 500);
       }

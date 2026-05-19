@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import api from '../api/client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -67,8 +68,7 @@ const QuizActive = () => {
       // Navigate to results, passing the data shape QuizResults expects
       navigate(`/quiz/${attemptId}/results`, { state: { results: res } });
     } catch (error) {
-      console.error('Submission failed:', error);
-      alert('Erreur lors de la soumission du quiz.');
+      toast.error('Erreur lors de la soumission du quiz.');
     } finally {
       setSubmitting(false);
     }

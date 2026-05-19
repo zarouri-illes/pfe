@@ -46,7 +46,7 @@ const AdminPacks = () => {
       const res = await api('/api/admin/credit-packs');
       setPacks(res.data || res);
     } catch (error) {
-      console.error('Error fetching packs:', error);
+      toast.error('Erreur lors du chargement des packs.');
     } finally {
       setLoading(false);
     }
@@ -123,7 +123,7 @@ const AdminPacks = () => {
       });
       setPacks(prev => prev.map(p => p.id === pack.id ? { ...p, isActive: !p.isActive } : p));
     } catch (error) {
-      console.error('Toggle failed:', error);
+      toast.error('Erreur lors du changement de statut.');
     }
   };
 

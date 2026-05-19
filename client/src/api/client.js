@@ -23,13 +23,17 @@ const api = async (path, options = {}) => {
     headers,
   });
 
-  // Handle 401 globally — expired token
+  // Handle 401 globally
   if (res.status === 401) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    // We NO LONGER force redirect here. ProtectedRoute.jsx handles this for restricted areas.
-    // This prevents loops where guest-accessible pages call protected endpoints.
-    throw new Error('Session expired');
+    const isAuthPath = path.includes('/api/auth/login') || path.includes('/api/auth/register');
+    
+    // Only clear session and throw "Session expired" if it's NOT an auth attempt
+    if (!isAuthPath) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      throw new Error('Session expired');
+    }
+    // For auth paths, we fall through to let the caller handle the specific 401 error message
   }
 
   // Handle 402 globally — insufficient credits

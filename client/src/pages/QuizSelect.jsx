@@ -39,8 +39,8 @@ const QuizSelect = () => {
       setSubjects(data);
       if (data.length > 0) setActiveSubject(data[0].id);
     } catch (err) {
-      console.error('Error fetching subjects:', err);
-      setError('Impossible de charger les matières. Vérifiez votre connexion.');
+      toast.error('Impossible de charger les matières. Vérifiez votre connexion.');
+      setError('Impossible de charger les matières.');
     } finally {
       setLoading(false);
     }
@@ -56,8 +56,7 @@ const QuizSelect = () => {
       const { attemptId, questions } = res.data;
       navigate(`/quiz/${attemptId}`, { state: { questions } });
     } catch (error) {
-      console.error('Failed to start quiz:', error);
-      // 402 is handled by interceptor, no need to alert here
+      toast.error(error.message || 'Erreur lors du lancement du quiz.');
     }
   };
 

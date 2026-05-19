@@ -18,6 +18,7 @@ import { Button } from '../components/ui/button';
 import Skeleton from '../components/ui/skeleton';
 import LatexRenderer from '../components/LatexRenderer';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { toast } from 'sonner';
 import api from '../api/client';
 
 const QuizResults = () => {
@@ -39,7 +40,9 @@ const QuizResults = () => {
         const res = await api(`/api/quiz/${attemptId}/results`);
         setResults(res.data);
       } catch (err) {
-        setFetchError(err.message || 'Impossible de charger les résultats.');
+        const msg = err.message || 'Impossible de charger les résultats.';
+        setFetchError(msg);
+        toast.error(msg);
       } finally {
         setLoading(false);
       }

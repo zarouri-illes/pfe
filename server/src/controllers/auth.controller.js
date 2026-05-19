@@ -18,7 +18,7 @@ const register = asyncHandler(async (req, res) => {
   });
 
   if (userExists) {
-    return res.status(409).json({ error: 'User already exists' });
+    return res.status(409).json({ error: 'Cet email est déjà utilisé.' });
   }
 
   const salt = await bcrypt.genSalt(12);
@@ -50,24 +50,23 @@ const register = asyncHandler(async (req, res) => {
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // We must fetch passwordHash here to compare
   const user = await prisma.user.findUnique({
     where: { email },
   });
 
   if (!user) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+    return res.status(401).json({ error: 'Identifiants invalides.' });
   }
 
   const isMatch = await bcrypt.compare(password, user.passwordHash);
 
   if (!isMatch) {
-    return res.status(401).json({ error: 'Invalid credentials' });
+    return res.status(401).json({ error: 'Identifiants invalides.' });
   }
 
   const token = generateToken(user.id, user.email, user.role);
 
-  // Strip passwordHash before returning
+  // Strip sensitive fields
   delete user.passwordHash;
 
   res.status(200).json({ data: { user, token } });
