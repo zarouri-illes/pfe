@@ -389,9 +389,6 @@ const Dashboard = () => {
       >
          <div className="flex items-center justify-between">
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Activités Récentes</h2>
-            <button className="text-xs font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
-               Voir Tout <ChevronRight size={14} />
-            </button>
          </div>
 
          <motion.div 
@@ -432,9 +429,9 @@ const Dashboard = () => {
               <div className="col-span-full py-16 text-center bg-white rounded-lg border border-dashed border-slate-200">
                  <BookOpen className="mx-auto text-slate-200 mb-4" size={48} />
                  <p className="text-slate-400 font-bold uppercase tracking-widest">Aucune activité récente</p>
-                 <button className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
+                 <Link to="/exams" className="mt-4 inline-block px-6 py-2 bg-indigo-600 text-white rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
                     Commencer à Réviser
-                 </button>
+                 </Link>
               </div>
             )}
          </motion.div>

@@ -3,8 +3,8 @@ const { GoogleGenAI } = require('@google/genai');
 // Singleton SDK instance — initialized once at module load, not per-request
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-/** Correct model identifier for Gemini 2.0 Flash */
-const GEMINI_FLASH_MODEL = 'gemini-2.0-flash';
+/** Lighter model with higher free-tier quotas — good enough for a tutoring chatbot */
+const GEMINI_FLASH_MODEL = 'gemini-2.0-flash-lite';
 
 // The system prompt is defined strictly at initialization so the user cannot override it.
 const CHATBOT_SYSTEM_INSTRUCTION = `
