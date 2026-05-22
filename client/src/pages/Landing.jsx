@@ -40,7 +40,7 @@ export default function Landing() {
     <div className="bg-white font-inter">
       
       {/* 1. HERO SECTION */}
-      <section className="sticky top-0 w-full min-h-screen flex flex-col justify-center bg-white px-6 pt-32 lg:pt-24 lg:pb-24 max-w-7xl mx-auto items-center lg:flex-row gap-12 z-[1] overflow-hidden">
+      <section className="w-full min-h-screen flex flex-col justify-center bg-white px-6 pt-32 lg:pt-24 lg:pb-24 max-w-7xl mx-auto items-center lg:flex-row gap-12 overflow-hidden">
         
         {/* Left: Content */}
         <div className="flex-1 text-center lg:text-left z-10">
@@ -119,7 +119,7 @@ export default function Landing() {
       </section>
 
       {/* 2. SUBJECTS GRID */}
-      <section className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-10 bg-slate-50 z-[2]">
+      <section className="w-full min-h-screen flex flex-col justify-center px-6 py-10 bg-slate-50">
         <div className="max-w-[1400px] mx-auto w-full">
           <div className="text-center mb-16">
             <h2 className="text-[#10b981] font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Bibliothèque Bac</h2>
@@ -152,7 +152,7 @@ export default function Landing() {
             <SubjectCard 
               size="small"
               title="Arabe & Littérature" 
-              img="https://images.unsplash.com/photo-1544648397-52e9dd677ba9?w=800&q=80"
+              img="https://images.unsplash.com/photo-1491841550275-ad7854e35ca6?w=800&q=80"
               icon={BookOpen}
               color="from-slate-900 to-transparent"
               comingSoon={true}
@@ -160,7 +160,7 @@ export default function Landing() {
             <SubjectCard 
               size="small"
               title="Anglais" 
-              img="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=80"
+              img="https://images.unsplash.com/photo-1520939817895-060bdaf4fe1b?w=800&q=80"
               icon={MessageSquare}
               color="from-[#1e3a8a]/80 to-transparent"
               comingSoon={true}
@@ -170,7 +170,7 @@ export default function Landing() {
       </section>
 
       {/* 3. AI SECTION */}
-      <section id="about" className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-blue-50 relative overflow-hidden z-[3]">
+      <section id="about" className="w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-blue-50 relative overflow-hidden">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
           <div className="flex-1 relative order-2 lg:order-1">
              <motion.div 
@@ -210,7 +210,7 @@ export default function Landing() {
       </section>
 
       {/* 4. PRICING */}
-      <section className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-emerald-50 z-[4]">
+      <section className="w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-emerald-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-[#10b981] font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Votre Investissement</h2>
@@ -255,7 +255,7 @@ export default function Landing() {
         </div>
       </section>
       {/* 5. FAQ */}
-      <section id="faq" className="sticky top-0 w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-zinc-50 z-[5]">
+      <section id="faq" className="w-full min-h-screen flex flex-col justify-center px-6 py-12 bg-zinc-50">
         <div className="max-w-3xl mx-auto w-full">
           <div className="text-center mb-16">
             <h2 className="text-[#10b981] font-bold uppercase tracking-[0.2em] text-[10px] mb-4">Assistance</h2>
