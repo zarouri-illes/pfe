@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 const asyncHandler = require('../utils/asyncHandler');
-const { getStudyRecommendations } = require('../services/geminiService');
+const { getStudyRecommendations } = require('../services/groqService');
 
 /**
  * @route   GET /api/dashboard

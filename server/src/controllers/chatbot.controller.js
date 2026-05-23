@@ -1,6 +1,6 @@
 const prisma = require('../lib/prisma');
 const asyncHandler = require('../utils/asyncHandler');
-const { getChatbotResponse } = require('../services/geminiService');
+const { getChatbotResponse } = require('../services/groqService');
 
 /**
  * @route   POST /api/chatbot
@@ -24,7 +24,7 @@ const chat = asyncHandler(async (req, res, next) => {
       },
     });
   } catch (error) {
-    // If we reach this catch block, the Gemini API call failed for some reason
+    // If we reach this catch block, the AI API call failed for some reason
     // (rate limits, network timeout, strict safety block, etc.) 
     // AND the student has already lost a credit. We MUST issue a refund.
     await prisma.user.update({
@@ -37,7 +37,11 @@ const chat = asyncHandler(async (req, res, next) => {
     });
     req.user.creditBalance += 1;
 
-    console.error('Gemini API Error:', error);
+    if (error.isProviderUnavailable) {
+      console.warn('Groq API unavailable (rate limit or quota) — see https://console.groq.com');
+    } else {
+      console.error('Groq API Error:', error);
+    }
 
     const refundError = new Error('The AI service is temporarily unavailable. Your credit has been automatically refunded.');
     refundError.status = 503; 

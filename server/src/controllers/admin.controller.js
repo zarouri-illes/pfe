@@ -541,11 +541,10 @@ const getExamFile = asyncHandler(async (req, res) => {
       const isRaw = exam.fileUrl.includes('/raw/upload/');
       const detectedResourceType = isRaw ? 'raw' : 'image';
 
-      // For raw resources, the .pdf extension is literally part of the ID path if it was appended
-      // For images, the public ID does not have the extension
-      const publicIdForSigning = (isRaw && !exam.publicId.endsWith('.pdf'))
-        ? `${exam.publicId}.pdf`
-        : exam.publicId;
+      // Use the public ID exactly as stored. If it's a raw resource and 
+      // doesn't have the extension, we don't force it, as the fileUrl shows
+      // it was uploaded without it. Force-adding .pdf will cause a 404.
+      const publicIdForSigning = exam.publicId;
 
       fetchUrl = cloudinary.url(publicIdForSigning, {
         sign_url: true,
@@ -569,10 +568,14 @@ const getExamFile = asyncHandler(async (req, res) => {
     }
 
     const buffer = await response.arrayBuffer();
+    const nodeBuffer = Buffer.from(buffer);
+    
+    console.log(`[PDF DOWNLOAD] Size: ${nodeBuffer.length} bytes`);
+    console.log(`[PDF DOWNLOAD] Header signature: ${nodeBuffer.toString('utf8', 0, 5)}`);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `inline; filename="${exam.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf"`);
-    res.send(Buffer.from(buffer));
+    res.send(nodeBuffer);
   } catch (error) {
     console.error('Streaming error:', error);
     res.status(500).json({ message: 'Erreur lors du chargement du PDF' });

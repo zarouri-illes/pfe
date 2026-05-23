@@ -244,23 +244,54 @@ const ExamLibrary = () => {
                          <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{exam.title || 'Examen Officiel'}</span>
                             <div className="flex gap-2">
-                               <a 
-                                 href={exam.fileUrl} 
-                                 target="_blank" 
-                                 rel="noopener noreferrer"
+                               <button 
+                                 onClick={async (e) => {
+                                   e.stopPropagation();
+                                   try {
+                                     toast.loading('Ouverture de l\'aperçu...', { id: 'preview' });
+                                     const res = await fetch(exam.fileUrl);
+                                     if (!res.ok) throw new Error('Aperçu échoué');
+                                     const blob = await res.blob();
+                                     // Ensure the correct mime type so the browser opens it instead of downloading
+                                     const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+                                     const url = window.URL.createObjectURL(pdfBlob);
+                                     window.open(url, '_blank');
+                                     toast.success('Aperçu ouvert', { id: 'preview' });
+                                   } catch (err) {
+                                     toast.error('Erreur lors de l\'ouverture de l\'aperçu', { id: 'preview' });
+                                   }
+                                 }}
                                  className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                                  title="Aperçu"
                                >
                                   <ExternalLink size={18} />
-                               </a>
-                               <a 
-                                 href={exam.fileUrl} 
-                                 download
+                               </button>
+                               <button 
+                                 onClick={async (e) => {
+                                   e.stopPropagation();
+                                   try {
+                                     toast.loading('Téléchargement en cours...', { id: 'download' });
+                                     const res = await fetch(exam.fileUrl);
+                                     if (!res.ok) throw new Error('Téléchargement échoué');
+                                     const blob = await res.blob();
+                                     const url = window.URL.createObjectURL(blob);
+                                     const a = document.createElement('a');
+                                     a.href = url;
+                                     a.download = `${(exam.title || 'Examen').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                                     document.body.appendChild(a);
+                                     a.click();
+                                     a.remove();
+                                     window.URL.revokeObjectURL(url);
+                                     toast.success('Téléchargement terminé', { id: 'download' });
+                                   } catch (err) {
+                                     toast.error('Erreur lors du téléchargement', { id: 'download' });
+                                   }
+                                 }}
                                  className="p-2 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"
                                  title="Télécharger"
                                >
                                   <Download size={18} />
-                               </a>
+                               </button>
                             </div>
                          </div>
                       </div>

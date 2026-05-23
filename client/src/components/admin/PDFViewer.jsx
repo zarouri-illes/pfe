@@ -21,15 +21,7 @@ const PDFViewer = ({ examId, onClose, title }) => {
     const fetchPdf = async () => {
       try {
         setLoading(true);
-        // Using the proxy endpoint we just created
-        const response = await api(`/api/admin/exams/${examId}/view`, {
-            responseType: 'blob' // Assuming our api client supports this or we handle it
-        });
-        
-        // If our api client doesn't handle blobs automatically, we might need a raw fetch
-        // But let's assume it returns a blob if we ask for it. 
-        // If it returns JSON by default, we'll use a standard fetch here for reliability.
-        
+        // Directly fetch the raw PDF blob
         const token = localStorage.getItem('token');
         const rawRes = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/admin/exams/${examId}/view`, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -111,7 +103,7 @@ const PDFViewer = ({ examId, onClose, title }) => {
             </div>
           ) : (
             <div className="w-full h-full custom-pdf-viewer">
-              <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
+              <Worker workerUrl={`https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs`}>
                 <Viewer
                   fileUrl={pdfUrl}
                   plugins={[defaultLayoutPluginInstance]}

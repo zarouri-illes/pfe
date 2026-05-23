@@ -394,15 +394,36 @@ const AdminExams = () => {
                         >
                           <FileText size={18} />
                         </button>
-                        <a 
-                          href={exam.fileUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
+                        <button 
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                              toast.loading('Téléchargement en cours...', { id: 'download' });
+                              const token = localStorage.getItem('token');
+                              const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/admin/exams/${exam.id}/view`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                              });
+                              if (!res.ok) throw new Error('Failed to download');
+                              const blob = await res.blob();
+                              const url = window.URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              // Force .pdf extension to prevent OS corruption warnings
+                              a.download = `${exam.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+                              document.body.appendChild(a);
+                              a.click();
+                              a.remove();
+                              window.URL.revokeObjectURL(url);
+                              toast.success('Téléchargement terminé', { id: 'download' });
+                            } catch (err) {
+                              toast.error('Erreur lors du téléchargement', { id: 'download' });
+                            }
+                          }}
                           className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
                           title="Télécharger"
                         >
                           <FileDown size={18} />
-                        </a>
+                        </button>
                         <button 
                           onClick={() => handleDeleteClick(exam)}
                           className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
